@@ -27,7 +27,7 @@ void test_create(void) {
 void test_insert(void) {
 	List list = list_create(NULL);
 	
-	// Θα προσθέτουμε, μέσω της insert, δείκτες ως προς τα στοιχεία του π΄ίνακα
+	// Θα προσθέτουμε, μέσω της insert, δείκτες ως προς τα στοιχεία του πίνακα
 	int N = 1000;
 	int array[N];					
 
