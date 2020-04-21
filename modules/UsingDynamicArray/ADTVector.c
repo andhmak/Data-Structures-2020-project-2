@@ -73,7 +73,7 @@ void vector_insert_last(Vector vec, Pointer value) {
 	// Διπλασιάζουμε κάθε φορά το capacity (σημαντικό για την πολυπλοκότητα!)
 	if (vec->capacity == vec->size) {
 		// Προσοχή: δεν πρέπει να κάνουμε free τον παλιό pointer, το κάνει η realloc
-		vec->steps += vector_size(vec);
+		vec->steps += vec->size;
 		vec->capacity *= 2;
 		vec->array = realloc(vec->array, vec->capacity * sizeof(*vec->array));
 	}
@@ -84,7 +84,7 @@ void vector_insert_last(Vector vec, Pointer value) {
 
 void vector_remove_last(Vector vec) {
 	assert(vec->size != 0);		// LCOV_EXCL_LINE
-
+	vec->steps = 1;
 	// Αν υπάρχει συνάρτηση destroy_value, την καλούμε για το στοιχείο που αφαιρείται
 	if (vec->destroy_value != NULL)
 		vec->destroy_value(vec->array[vec->size - 1].value);
@@ -97,6 +97,7 @@ void vector_remove_last(Vector vec) {
 	// αν το capacity είναι τετραπλάσιο του size (δηλαδή το 75% του πίνακα είναι άδειος).
 	//
 	if (vec->capacity > vec->size * 4 && vec->capacity > 2*VECTOR_MIN_CAPACITY) {
+		vec->steps += vec->size;
 		vec->capacity /= 2;
 		vec->array = realloc(vec->array, vec->capacity * sizeof(*vec->array));
 	}
