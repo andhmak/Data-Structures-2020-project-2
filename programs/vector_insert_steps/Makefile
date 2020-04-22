@@ -6,7 +6,7 @@ CC = gcc
 
 CFLAGS = -Wall -g -I$(INCLUDE) -Werror
 
-OBJS = vector_insert_steps.o $(MODULES)/UsingDynamicArray/ADTVector.c
+OBJS = vector_insert_steps.o $(MODULES)/UsingDynamicArray/ADTVector.o
 
 EXEC = vector_insert_steps
 

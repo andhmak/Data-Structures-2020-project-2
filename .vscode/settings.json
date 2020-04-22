@@ -4,7 +4,7 @@
 		"dir": "tests",
 
 		// Όνομα του εκτελέσιμου προγράμματος
-		"program": "UsingDoublyLL_ADTBList_test",
+		"program": "UsingADTSet_ADTPriorityQueue_test",
 
 		// Ορίσματα του προγράμματος.
 		// - Για ανακατεύθυνση εισόδου βάζουμε ορίσματα: "<", "input-file"
@@ -19,5 +19,9 @@
 		"arg4": "",
 		"arg5": "",
 		"arg6": "",
+	},
+	"files.associations": {
+		"adtset.h": "c",
+		"adtvector.h": "c"
 	},
 }

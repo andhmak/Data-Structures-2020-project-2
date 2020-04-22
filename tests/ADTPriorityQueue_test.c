@@ -175,9 +175,9 @@ void test_update_order(void) {
 TEST_LIST = {
 	{ "pqueue_create", test_create },
 	{ "pqueue_insert", test_insert },
-	{ "pqueue_remove_max", test_remove_max },
-	{ "pqueue_remove_node", test_remove_node },
-	{ "pqueue_update_order", test_update_order },
+//	{ "pqueue_remove_max", test_remove_max },
+//	{ "pqueue_remove_node", test_remove_node },
+//	{ "pqueue_update_order", test_update_order },
 
 	{ NULL, NULL } // τερματίζουμε τη λίστα με NULL
 };
