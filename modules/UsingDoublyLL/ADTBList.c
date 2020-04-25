@@ -12,8 +12,8 @@
 
 // Ενα BList είναι pointer σε αυτό το struct
 struct blist {
-	BListNode dummy_first;				// χρησιμοποιούμε dummy κόμβο, ώστε ακόμα και η κενή λίστα να έχει έναν κόμβο.
-	BListNode dummy_last;				// δείκτης στον τελευταίο κόμβο, ή στον dummy (αν η λίστα είναι κενή)
+	BListNode dummy_first;		// dummy κόμβος πριν τον πρώτο
+	BListNode dummy_last;		// dummy κόμβος μετά τον τελευταίο (η κενή λίστα έχει 2 κόμβους)
 	int size;					// μέγεθος, ώστε η list_size να είναι Ο(1)
 	DestroyFunc destroy_value;	// Συνάρτηση που καταστρέφει ένα στοιχείο της λίστας.
 };
@@ -28,18 +28,18 @@ struct blist_node {
 BList blist_create(DestroyFunc destroy_value) {
 	// Πρώτα δημιουργούμε το stuct
 	BList blist = malloc(sizeof(*blist));
+	// αρχικοποιούμε το μέγεθος
 	blist->size = 0;
+	// θέτουμε την συνάρτηση απελευθέρωσης μνήμης στοιχείου
 	blist->destroy_value = destroy_value;
 
-	// Χρησιμοποιούμε dummy κόμβο, ώστε ακόμα και μια άδεια λίστα να έχει ένα κόμβο
-	// (απλοποιεί τους αλγορίθμους). Οπότε πρέπει να τον δημιουργήσουμε.
-	//
+	// ΔΗμιουργούμε τους dummy και θέτουμε τις σχέσεις τους
 	blist->dummy_first = malloc(sizeof(*blist->dummy_first));
 	blist->dummy_last = malloc(sizeof(*blist->dummy_last));
 	blist->dummy_first->next = blist->dummy_last;		// ο dummy_first έχει επόμενο τον dummy_last
+	blist->dummy_last->prev = blist->dummy_first;		// ο dummy_last έχει προηγούμενο τον dummy_first
 	blist->dummy_first->prev = NULL;			// ο dummy_first δεν έχει προηγούμενο
 	blist->dummy_last->next = NULL;				// ο dummy_last δεν έχει επόμενο
-	blist->dummy_last->prev = blist->dummy_first;		// ο dummy_last έχει προηγούμενο τον dummy_first
 
 	return blist;
 }
@@ -49,7 +49,7 @@ int blist_size(BList blist) {
 }
 
 void blist_insert(BList blist, BListNode node, Pointer value) {
-	// Αν το node είναι NULL απλά εισάγουμε πριν τον dummy
+	// Αν το node είναι NULL απλά εισάγουμε πριν τον dummy_last
 	if (node == NULL)
 		node = blist->dummy_last;
 
@@ -80,7 +80,7 @@ void blist_remove(BList blist, BListNode node) {
 
 	free(node);
 
-	// Ενημέρωση των size & last
+	// Ενημέρωση του last
 	blist->size--;
 }
 
@@ -97,7 +97,7 @@ DestroyFunc blist_set_destroy_value(BList blist, DestroyFunc destroy_value) {
 
 void blist_destroy(BList blist) {
 	// Διασχίζουμε όλη τη λίστα και κάνουμε free όλους τους κόμβους,
-	// συμπεριλαμβανομένου και του dummy!
+	// συμπεριλαμβανομένων και των dummy!
 	//
 	BListNode node = blist->dummy_first;
 	while (node != NULL) {				// while αντί για for, γιατί θέλουμε να διαβάσουμε
@@ -152,7 +152,7 @@ Pointer blist_node_value(BList blist, BListNode node) {
 }
 
 BListNode blist_find_node(BList blist, Pointer value, CompareFunc compare) {
-	// διάσχιση όλης της λίστας, καλούμε την compare μέχρι να επιστρέψει 0
+	// διασχίζουμε όλην τη λίστα, καλούμε την compare μέχρι να επιστρέψει 0
 	//
 	for (BListNode node = blist->dummy_first->next ; node != blist->dummy_last ; node = node->next)
 		if (compare(value, node->value) == 0)
