@@ -19,4 +19,4 @@ __Α.Μ.__: sdi???????
 πρέπει να γίνει ανεξάρτητα με το αν ο κώδικάς σας είναι καλά σχολιασμένος,
 πράγμα που συνιστάται.<br>
 ![Real steps](https://github.com/chatziko-k08/2020-project-2-andhmak/tree/master/images/real.png)<br>
-![Amortized steps](https://github.com/chatziko-k08/2020-project-2-andhmak/tree/master/images/amortized.png)<br>
+![Amortized steps](https://github.com/chatziko-k08/2020-project-2-andhmak/tree/master/images/amort.png)<br>
