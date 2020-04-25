@@ -75,7 +75,7 @@ void test_remove(void) {
 
 
 	for (int i = N - 1; i >= 0; i--) {
-		// Διαγράφουμε απο το τέλος και ελέγχουμε εάν η τιμή του πρώτου κόμβου 
+		// Διαγράφουμε απο το τέλος και ελέγχουμε εάν η τιμή του τελευταίου κόμβου 
 		// ήταν η ίδια με αυτή που κάναμε insert παραπάνω
 		TEST_ASSERT(blist_node_value(blist, blist_last(blist)) == array[i]);
 		blist_remove(blist, blist_last(blist));
@@ -147,8 +147,8 @@ void test_find_node() {
 
 	for (int i = 0; i < N; i++) {
 		// Ελέγχουμε ότι η list_find_node βρίσκει σωστά τον πρώτο κόμβο με value τον δείκτη &array[i].
-		// Σε αυτή την λίστα, δοκιμάζουμε ότι ο πρώτος κόμβος περιέχει τον δείκτη &array[N - 1], 
-		// o δεύτερος τον &array[998] κοκ
+		// Σε αυτή την λίστα, δοκιμάζουμε ότι ο πρώτος κόμβος περιέχει τον δείκτη &array[0], 
+		// o δεύτερος τον &array[1] κοκ
 		BListNode found_node = blist_find_node(blist, &i, compare_ints); 
 		TEST_ASSERT(found_node == node);
 		TEST_ASSERT(blist_node_value(blist, found_node) == &array[i]);
