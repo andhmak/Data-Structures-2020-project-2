@@ -31,6 +31,7 @@ struct vector {
 Vector vector_create(int size, DestroyFunc destroy_value) {
 	// Δημιουργία του struct
 	Vector vec = malloc(sizeof(*vec));
+	// τα βήματα δεν εξαρτώνται από το μέγεθος του vector
 	vec->steps = 1;
 
 	vec->size = size;
@@ -72,8 +73,9 @@ void vector_insert_last(Vector vec, Pointer value) {
 	// Μεγαλώνουμε τον πίνακα (αν χρειαστεί), ώστε να χωράει τουλάχιστον size στοιχεία
 	// Διπλασιάζουμε κάθε φορά το capacity (σημαντικό για την πολυπλοκότητα!)
 	if (vec->capacity == vec->size) {
-		// Προσοχή: δεν πρέπει να κάνουμε free τον παλιό pointer, το κάνει η realloc
+		// Αν γίνει realloc γίνονται άλλα vec->size βήματα
 		vec->steps += vec->size;
+		// Προσοχή: δεν πρέπει να κάνουμε free τον παλιό pointer, το κάνει η realloc
 		vec->capacity *= 2;
 		vec->array = realloc(vec->array, vec->capacity * sizeof(*vec->array));
 	}
@@ -97,6 +99,7 @@ void vector_remove_last(Vector vec) {
 	// αν το capacity είναι τετραπλάσιο του size (δηλαδή το 75% του πίνακα είναι άδειος).
 	//
 	if (vec->capacity > vec->size * 4 && vec->capacity > 2*VECTOR_MIN_CAPACITY) {
+		// Αν γίνει realloc γίνονται άλλα vec->size βήματα
 		vec->steps += vec->size;
 		vec->capacity /= 2;
 		vec->array = realloc(vec->array, vec->capacity * sizeof(*vec->array));
@@ -107,10 +110,12 @@ Pointer vector_find(Vector vec, Pointer value, CompareFunc compare) {
 	// Διάσχιση του vector
 	for (int i = 0; i < vec->size; i++) {
 		if (compare(vec->array[i].value, value) == 0) {
+			// έχουν γίνει i + 1 επαναλήψεις
 			vec->steps = i + 1;
 			return vec->array[i].value;		// βρέθηκε
 		}
 	}
+	// έχουν γίνει vec->size + 1 επαναλήψεις
 	vec->steps = vec->size + 1;
 	return NULL;				// δεν υπάρχει
 }
@@ -179,10 +184,12 @@ VectorNode vector_find_node(Vector vec, Pointer value, CompareFunc compare) {
 	// Διάσχιση του vector
 	for (int i = 0; i < vec->size; i++) {
 		if (compare(vec->array[i].value, value) == 0) {
+			// έχουν γίνει i + 1 επαναλήψεις
 			vec->steps = i + 1;
 			return &vec->array[i];		// βρέθηκε
 		}
 	}
+	// έχουν γίνει vec->size + 1 επαναλήψεις
 	vec->steps = vec->size + 1;
 	return VECTOR_EOF;				// δεν υπάρχει
 }
