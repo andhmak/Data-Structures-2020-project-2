@@ -18,4 +18,5 @@ __Α.Μ.__: sdi???????
 κατανοήσουν πλήρως τις λύσεις σας και να τις βαθμολογήσουν ανάλογα. Αυτό θα
 πρέπει να γίνει ανεξάρτητα με το αν ο κώδικάς σας είναι καλά σχολιασμένος,
 πράγμα που συνιστάται.<br>
-![text](https://github.com/chatziko-k08/2020-project-2-andhmak/tree/master/pictures/real.png)<br>
+![Real steps](https://github.com/chatziko-k08/2020-project-2-andhmak/tree/master/images/real.png)<br>
+![Amortized steps](https://github.com/chatziko-k08/2020-project-2-andhmak/tree/master/images/amortized.png)<br>
