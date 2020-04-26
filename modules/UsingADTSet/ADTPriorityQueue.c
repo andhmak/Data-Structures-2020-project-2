@@ -16,6 +16,7 @@
 
 
 // Μία ουρά προτεραιότητας αναπαριστάται από τον τύπο PriorityQueue
+// Απροσδιόριστη συμπεριφορά αν προστεθεί στοιχείο ισοδύναμο (σύμφωνα με την compare) με ήδη υπάρχον
 
 typedef struct priority_queue* PriorityQueue;
 typedef struct priority_queue_node* PriorityQueueNode;
@@ -133,7 +134,6 @@ void pqueue_remove_node(PriorityQueue pqueue, PriorityQueueNode node) {
 // - η κλήση οποιασδήποτε άλλης συνάρτησης pqueue_*
 
 void pqueue_update_order(PriorityQueue pqueue, PriorityQueueNode node) {
-    Pointer value = pqueue_node_value(pqueue, node);
-    pqueue_remove_node(pqueue, node);
-    pqueue_insert(pqueue, value);
+    set_remove_nofree(pqueue->set, set_node_value(pqueue->set, (SetNode) node));
+    set_insert_node(pqueue->set, (SetNode) node);
 }
