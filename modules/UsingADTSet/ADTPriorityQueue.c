@@ -80,8 +80,7 @@ Pointer pqueue_max(PriorityQueue pqueue) {
 
 PriorityQueueNode pqueue_insert(PriorityQueue pqueue, Pointer value) {
     set_insert(pqueue->set, value);
-    PriorityQueueNode pqnode = malloc(sizeof(*pqnode));
-    pqnode->setnode = set_find_node(pqueue->set, value);
+    PriorityQueueNode pqnode = (PriorityQueueNode) set_find_node(pqueue->set, value);
     return pqnode;
 }
 
@@ -113,15 +112,14 @@ void pqueue_destroy(PriorityQueue pqueue) {
 // Επιστρέφει το περιεχόμενο του κόμβου node
 
 Pointer pqueue_node_value(PriorityQueue pqueue, PriorityQueueNode node) {
-    return set_node_value(pqueue->set, node->setnode);
+    return set_node_value(pqueue->set, (SetNode) node);
 }
 
 // Αφαιρεί τον κόμβο node ο οποίος μπορεί να βρίσκεται σε οποιαδήποτε θέση της ουράς
 // (μη ορισμένη συμπεριφορά αν δεν ανήκει στην ουρά).
 
 void pqueue_remove_node(PriorityQueue pqueue, PriorityQueueNode node) {
-    set_remove(pqueue->set, set_node_value(pqueue->set, node->setnode));
-    free(node);
+    set_remove(pqueue->set, set_node_value(pqueue->set, (SetNode) node));
 }
 
 // Ενημερώνει την ουρά μετά από αλλαγή της διάταξης της τιμής του κόμβου node.
