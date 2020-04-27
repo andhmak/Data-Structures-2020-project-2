@@ -364,68 +364,43 @@ bool set_is_proper(Set node) {
 
 // extra
 
-static SetNode node_remove_nofree(SetNode node, CompareFunc compare, Pointer value, bool* removed, Pointer* old_value) {
-	if (node == NULL) {
-		*removed = false;		// κενό υποδέντρο, δεν υπάρχει η τιμή
-		return NULL;
-	}
+// no need to search lowest nodes
 
-	int compare_res = compare(value, node->value);
-	if (compare_res == 0) {
-		// Βρέθηκε ισοδύναμη τιμή στον node, οπότε τον διαγράφουμε. Το πώς θα γίνει αυτό εξαρτάται από το αν έχει παιδιά.
-		*removed = true;
-		*old_value = node->value;
-
-		if (node->left == NULL) {
-			// Δεν υπάρχει αριστερό υποδέντρο, οπότε διαγράφεται απλά ο κόμβος και νέα ρίζα μπαίνει το δεξί παιδί
-			SetNode right = node->right;	// όχι free!
-			return right;
-
+void set_remove_node(Set set, SetNode node) {
+	for (SetNode iternode = set_first(set) ; iternode != NULL ; iternode = set_next(set, iternode)) {
+		if (iternode->left == node) {
+			if (node->left == NULL) {
+				iternode->left = node->right;
+			}
+			else if (node->right == NULL) {
+				iternode->left = node->left;
+			}
+			else {
+				SetNode min_right;
+				min_right->right = node_remove_min(node->right, &min_right);
+				min_right->left = node->left;
+				iternode->left = min_right;
+			}
+			node->right = NULL;
+			node->left = NULL;
 		}
-		else if (node->right == NULL) {
-			// Δεν υπάρχει δεξί υποδέντρο, οπότε διαγράφεται απλά ο κόμβος και νέα ρίζα μπαίνει το αριστερό παιδί
-			SetNode left = node->left;		// όχι free!
-			return left;
-
-		}
-		else {
-			// Υπάρχουν και τα δύο παιδιά. Αντικαθιστούμε την τιμή του node με την μικρότερη του δεξιού υποδέντρου, η οποία
-			// αφαιρείται. Η συνάρτηση node_remove_min κάνει ακριβώς αυτή τη δουλειά.
-
-			SetNode min_right;
-			node->right = node_remove_min(node->right, &min_right);
-
-			// Σύνδεση του min_right στη θέση του node
-			min_right->left = node->left;
-			min_right->right = node->right;
-
-			return min_right;
+		else if (iternode->right == node) {
+			if (node->left == NULL) {
+				iternode->right = node->right;
+			}
+			else if (node->right == NULL) {
+				iternode->right = node->left;
+			}
+			else {
+				SetNode min_right;
+				min_right->right = node_remove_min(node->right, &min_right);
+				min_right->left = node->left;
+				iternode->right = min_right;
+			}
+			node->right = NULL;
+			node->left = NULL;
 		}
 	}
-
-	// compare_res != 0, συνεχίζουμε στο αριστερό ή δεξί υποδέντρο, η ρίζα δεν αλλάζει.
-	if (compare_res < 0)
-		node->left  = node_remove(node->left,  compare, value, removed, old_value);
-	else
-		node->right = node_remove(node->right, compare, value, removed, old_value);
-
-	return node;
-}
-
-bool set_remove_nofree(Set set, Pointer value) {
-	bool removed;
-	Pointer old_value = NULL;
-	set->root = node_remove_nofree(set->root, set->compare, value, &removed, &old_value);
-
-	// Το size αλλάζει μόνο αν πραγματικά αφαιρεθεί ένας κόμβος
-	if (removed) {
-		set->size--;
-
-		if (set->destroy_value != NULL)
-			set->destroy_value(old_value);
-	}
-
-	return old_value != NULL;
 }
 
 void set_insert_node(Set set, SetNode node) {

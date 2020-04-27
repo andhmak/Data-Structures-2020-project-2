@@ -91,3 +91,5 @@ SetNode set_find_node(Set set, Pointer value);
 bool set_remove_nofree(Set set, Pointer value);
 
 void set_insert_node(Set set, SetNode node);
+
+void set_remove_node(Set set, SetNode node);
