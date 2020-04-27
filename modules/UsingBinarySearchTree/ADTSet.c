@@ -383,6 +383,7 @@ void set_remove_node(Set set, SetNode node) {
 			}
 			node->right = NULL;
 			node->left = NULL;
+			break;
 		}
 		else if (iternode->right == node) {
 			if (node->left == NULL) {
@@ -399,6 +400,7 @@ void set_remove_node(Set set, SetNode node) {
 			}
 			node->right = NULL;
 			node->left = NULL;
+			break;
 		}
 	}
 }

@@ -134,7 +134,6 @@ void pqueue_remove_node(PriorityQueue pqueue, PriorityQueueNode node) {
 // - η κλήση οποιασδήποτε άλλης συνάρτησης pqueue_*
 
 void pqueue_update_order(PriorityQueue pqueue, PriorityQueueNode node) {
-    //!!!remove the node not the value as the node has a different value!
     set_remove_node(pqueue->set, (SetNode) node);
     set_insert_node(pqueue->set, (SetNode) node);
 }
