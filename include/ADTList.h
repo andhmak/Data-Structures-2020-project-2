@@ -79,3 +79,8 @@ Pointer list_node_value(List list, ListNode node);
 // Επιστρέφει τον κόμβο του στοιχείου, ή LIST_EOF αν δεν βρεθεί.
 
 ListNode list_find_node(List list, Pointer value, CompareFunc compare);
+
+// Επιστρέφει τον αριθμό βημάτων που πραγματοποίησε η συνάρτηση
+// list_* που κλήθηκε τελευταία (όποια και να ήταν αυτή).
+
+int list_steps(List list);

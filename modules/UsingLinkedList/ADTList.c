@@ -16,6 +16,7 @@ struct list {
 	ListNode last;				// δείκτης στον τελευταίο κόμβο, ή στον dummy (αν η λίστα είναι κενή)
 	int size;					// μέγεθος, ώστε η list_size να είναι Ο(1)
 	DestroyFunc destroy_value;	// Συνάρτηση που καταστρέφει ένα στοιχείο της λίστας.
+	int steps;						// άσκηση 1
 };
 
 struct list_node {
@@ -39,10 +40,13 @@ List list_create(DestroyFunc destroy_value) {
 	// Σε μια κενή λίστα, τελευταίος κόμβος είναι επίσης ο dummy
 	list->last = list->dummy;
 
+	list->steps = 1;
+
 	return list;
 }
 
 int list_size(List list) {
+	list->steps = 1;
 	return list->size;
 }
 
@@ -64,6 +68,8 @@ void list_insert_next(List list, ListNode node, Pointer value) {
 	list->size++;
 	if (list->last == node)
 		list->last = new;
+
+	list->steps = 1;
 }
 
 void list_remove_next(List list, ListNode node) {
@@ -88,16 +94,19 @@ void list_remove_next(List list, ListNode node) {
 	list->size--;
 	if (list->last == removed)
 		list->last = node;
+
+	list->steps = 1;
 }
 
 Pointer list_find(List list, Pointer value, CompareFunc compare) {
-	ListNode node = list_find_node(list, value, compare);
+	ListNode node = list_find_node(list, value, compare);	// φτιάνει και τα steps
 	return node == NULL ? NULL : node->value;
 }
 
 DestroyFunc list_set_destroy_value(List list, DestroyFunc destroy_value) {
 	DestroyFunc old = list->destroy_value;
 	list->destroy_value = destroy_value;
+	list->steps = 1;
 	return old;
 }
 
@@ -119,6 +128,7 @@ void list_destroy(List list) {
 
 	// Τέλος free το ίδιο το struct
 	free(list);
+	list->steps = list->size;
 }
 
 
@@ -127,12 +137,14 @@ void list_destroy(List list) {
 ListNode list_first(List list) {
 	// Ο πρώτος κόμβος είναι ο επόμενος του dummy.
 	//
+	list->steps = 1;
 	return list->dummy->next;
 }
 
 ListNode list_last(List list) {
 	// Προσοχή, αν η λίστα είναι κενή το last δείχνει στον dummy, εμείς όμως θέλουμε να επιστρέψουμε NULL, όχι τον dummy!
 	//
+	list->steps = 1;
 	if (list->last == list->dummy)
 		return LIST_EOF;		// κενή λίστα
 	else
@@ -141,20 +153,30 @@ ListNode list_last(List list) {
 
 ListNode list_next(List list, ListNode node) {
 	assert(node != NULL);	// LCOV_EXCL_LINE (αγνοούμε το branch από τα coverage reports, είναι δύσκολο να τεστάρουμε το false γιατί θα κρασάρει το test)
+	list->steps = 1;
 	return node->next;
 }
 
 Pointer list_node_value(List list, ListNode node) {
 	assert(node != NULL);	// LCOV_EXCL_LINE
+	list->steps = 1;
 	return node->value;
 }
 
 ListNode list_find_node(List list, Pointer value, CompareFunc compare) {
 	// διάσχιση όλης της λίστας, καλούμε την compare μέχρι να επιστρέψει 0
 	//
+	list->steps = list->size;
 	for (ListNode node = list->dummy->next; node != NULL; node = node->next)
 		if (compare(value, node->value) == 0)
 			return node;		// βρέθηκε
 
 	return NULL;	// δεν υπάρχει
+}
+
+// Επιστρέφει τον αριθμό βημάτων που πραγματοποίησε η συνάρτηση
+// list_* που κλήθηκε τελευταία (όποια και να ήταν αυτή).
+
+int list_steps(List list) {
+	return list->steps;
 }
