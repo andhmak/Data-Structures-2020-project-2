@@ -25,9 +25,11 @@ struct priority_queue {
     Set set;
 };
 
-struct priority_queue_node {
-    SetNode setnode;
-};
+// not needed
+
+//struct priority_queue_node {
+//    SetNode setnode;
+//};
 
 //CompareFunc compare_nodes(CompareFunc compare) {
 //    int newcompare(Pointer a, Pointer b) {
