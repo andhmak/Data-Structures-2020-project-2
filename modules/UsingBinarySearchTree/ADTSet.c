@@ -383,6 +383,8 @@ void set_remove_node(Set set, SetNode node) {
 			}
 			node->right = NULL;
 			node->left = NULL;
+			set->size--;
+			free(node);
 			break;
 		}
 		else if (iternode->right == node) {
@@ -400,6 +402,8 @@ void set_remove_node(Set set, SetNode node) {
 			}
 			node->right = NULL;
 			node->left = NULL;
+			free(node);
+			set->size--;
 			break;
 		}
 	}
@@ -426,6 +430,15 @@ void set_insert_node(Set set, SetNode node) {
 				iternode->right = node;
 				return;
 			}
+		}
+	}
+}
+
+void set_remove_wrongvalue(Set set, Pointer value) {
+	for (SetNode node = set_first(set) ; node != SET_EOF ; node  = set_next(set, node)) {
+		if (!set->compare(set_node_value(set, node), value)) {
+			set_remove_node(set, node);
+			break;
 		}
 	}
 }
