@@ -87,47 +87,47 @@ static SetNode node_find_max(SetNode node) {
 // ή NULL αν ο target είναι ο μικρότερος του υποδέντρου. Το υποδέντρο πρέπει να περιέχει τον κόμβο
 // target, οπότε δεν μπορεί να είναι κενό.
 
-static SetNode node_find_previous(SetNode node, CompareFunc compare, SetNode target) {
-	if (node == target) {
+//static SetNode node_find_previous(SetNode node, CompareFunc compare, SetNode target) {
+//	if (node == target) {
 		// Ο target είναι η ρίζα του υποδέντρου, o προηγούμενός του είναι ο μεγαλύτερος του αριστερού υποδέντρου.
 		// (Aν δεν υπάρχει αριστερό παιδί, τότε ο κόμβος με τιμή value είναι ο μικρότερος του υποδέντρου, οπότε
 		// η node_find_max θα επιστρέψει NULL όπως θέλουμε.)
-		return node_find_max(node->left);
+//		return node_find_max(node->left);
 
-	} else if (compare(target->value, node->value) < 0) {
+//	} else if (compare(target->value, node->value) < 0) {
 		// Ο target είναι στο αριστερό υποδέντρο, οπότε και ο προηγούμενός του είναι εκεί.
-		return node_find_previous(node->left, compare, target);
+//		return node_find_previous(node->left, compare, target);
 
-	} else {
+//	} else {
 		// Ο target είναι στο δεξί υποδέντρο, ο προηγούμενός του μπορεί να είναι επίσης εκεί, διαφορετικά
 		// ο προηγούμενός του είναι ο ίδιος ο node.
-		SetNode res = node_find_previous(node->right, compare, target);
-		return res != NULL ? res : node;
-	}
-}
+//		SetNode res = node_find_previous(node->right, compare, target);
+//		return res != NULL ? res : node;
+//	}
+//}
 
 // Επιστρέφει τον επόμενο (στη σειρά διάταξης) του κόμβου target στο υποδέντρο με ρίζα node,
 // ή NULL αν ο target είναι ο μεγαλύτερος του υποδέντρου. Το υποδέντρο πρέπει να περιέχει τον κόμβο
 // target, οπότε δεν μπορεί να είναι κενό.
 
-static SetNode node_find_next(SetNode node, CompareFunc compare, SetNode target) {
-	if (node == target) {
+//static SetNode node_find_next(SetNode node, CompareFunc compare, SetNode target) {
+//	if (node == target) {
 		// Ο target είναι η ρίζα του υποδέντρου, o προηγούμενός του είναι ο μεγαλύτερος του αριστερού υποδέντρου.
 		// (Aν δεν υπάρχει αριστερό παιδί, τότε ο κόμβος με τιμή value είναι ο μικρότερος του υποδέντρου, οπότε
 		// η node_find_max θα επιστρέψει NULL όπως θέλουμε.)
-		return node_find_min(node->right);
+//		return node_find_min(node->right);
 
-	} else if (compare(target->value, node->value) > 0) {
+//	} else if (compare(target->value, node->value) > 0) {
 		// Ο target είναι στο αριστερό υποδέντρο, οπότε και ο προηγούμενός του είναι εκεί.
-		return node_find_next(node->right, compare, target);
+//		return node_find_next(node->right, compare, target);
 
-	} else {
+//	} else {
 		// Ο target είναι στο δεξί υποδέντρο, ο προηγούμενός του μπορεί να είναι επίσης εκεί, διαφορετικά
 		// ο προηγούμενός του είναι ο ίδιος ο node.
-		SetNode res = node_find_next(node->left, compare, target);
-		return res != NULL ? res : node;
-	}
-}
+//		SetNode res = node_find_next(node->left, compare, target);
+//		return res != NULL ? res : node;
+//	}
+//}
 
 // Αν υπάρχει κόμβος με τιμή ισοδύναμη της value, αλλάζει την τιμή του σε value, διαφορετικά προσθέτει
 // νέο κόμβο με τιμή value. Επιστρέφει τη νέα ρίζα του υποδέντρου, και θέτει το *inserted σε true
@@ -243,9 +243,9 @@ static SetNode node_remove(Set set, SetNode node, CompareFunc compare, Pointer v
 
 	// compare_res != 0, συνεχίζουμε στο αριστερό ή δεξί υποδέντρο, η ρίζα δεν αλλάζει.
 	if (compare_res < 0)
-		node->left  = node_remove(node->left,  compare, value, removed, old_value);
+		node->left  = node_remove(set, node->left,  compare, value, removed, old_value);
 	else
-		node->right = node_remove(node->right, compare, value, removed, old_value);
+		node->right = node_remove(set, node->right, compare, value, removed, old_value);
 
 	return node;
 }
