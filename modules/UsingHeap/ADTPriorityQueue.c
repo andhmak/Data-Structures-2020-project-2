@@ -18,7 +18,7 @@ struct priority_queue {
 };
 
 struct priority_queue_node {
-	int* value;
+	Pointer value;
 	int index;
 };
 
