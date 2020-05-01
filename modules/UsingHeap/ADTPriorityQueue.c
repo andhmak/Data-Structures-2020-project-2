@@ -21,20 +21,7 @@ struct priority_queue_node {
 	Pointer value;
 	int index;
 };
-
-static CompareFunc temp_compare;
 static DestroyFunc temp_destroy;
-
-int compare_nodes(Pointer a, Pointer b) {
-    PriorityQueueNode nodea = a, nodeb = b;
-    int result = temp_compare(nodea->value, nodeb->value);
-    if (result != 0) {
-        return result;
-    }
-    else {
-        return nodea != nodeb;
-    }
-}
 
 void destroy_node(Pointer node) {
     PriorityQueueNode pnode = (PriorityQueueNode) node;
@@ -78,7 +65,6 @@ static void node_swap(PriorityQueue pqueue, int node_id1, int node_id2) {
 // Μετά: όλοι οι κόμβοι ικανοποιούν την ιδιότητα του σωρού.
 
 static void bubble_up(PriorityQueue pqueue, int node_id) {
-	temp_compare = pqueue->compare;
 	// Αν φτάσαμε στη ρίζα, σταματάμε
 	if (node_id == 1)
 		return;
@@ -86,7 +72,7 @@ static void bubble_up(PriorityQueue pqueue, int node_id) {
 	int parent = node_id / 2;		// Ο πατέρας του κόμβου. Τα node_ids είναι 1-based
 
 	// Αν ο πατέρας έχει μικρότερη τιμή από τον κόμβο, swap και συνεχίζουμε αναδρομικά προς τα πάνω
-	if (compare_nodes(node_value(pqueue, parent), node_value(pqueue, node_id)) < 0) {
+	if (pqueue->compare(((PriorityQueueNode) node_value(pqueue, parent))->value, ((PriorityQueueNode) node_value(pqueue, node_id))->value) < 0) {
 		node_swap(pqueue, parent, node_id);
 		bubble_up(pqueue, parent);
 	}
@@ -98,7 +84,6 @@ static void bubble_up(PriorityQueue pqueue, int node_id) {
 // Μετά: όλοι οι κόμβοι ικανοποιούν την ιδιότητα του σωρού.
 
 static void bubble_down(PriorityQueue pqueue, int node_id) {
-	temp_compare = pqueue->compare;
 	// βρίσκουμε τα παιδιά του κόμβου (αν δεν υπάρχουν σταματάμε)
 	int left_child = 2 * node_id;
 	int right_child = left_child + 1;
@@ -109,11 +94,11 @@ static void bubble_down(PriorityQueue pqueue, int node_id) {
 
 	// βρίσκουμε το μέγιστο από τα 2 παιδιά
 	int max_child = left_child;
-	if (right_child <= size && compare_nodes(node_value(pqueue, left_child), node_value(pqueue, right_child)) < 0)
+	if (right_child <= size && pqueue->compare(((PriorityQueueNode) node_value(pqueue, left_child))->value, ((PriorityQueueNode) node_value(pqueue, right_child))->value) < 0)
 			max_child = right_child;
 
 	// Αν ο κόμβος είναι μικρότερος από το μέγιστο παιδί, swap και συνεχίζουμε προς τα κάτω
-	if (compare_nodes(node_value(pqueue, node_id), node_value(pqueue, max_child)) < 0) {
+	if (pqueue->compare(((PriorityQueueNode) node_value(pqueue, node_id))->value, ((PriorityQueueNode) node_value(pqueue, max_child))->value) < 0) {
 		node_swap(pqueue, node_id, max_child);
 		bubble_down(pqueue, max_child);
 	}
@@ -185,12 +170,16 @@ PriorityQueueNode pqueue_insert(PriorityQueue pqueue, Pointer value) {
 }
 
 void pqueue_remove_max(PriorityQueue pqueue) {
-	temp_destroy = pqueue->destroy_value;
 	int last_node = pqueue_size(pqueue);
 	assert(last_node != 0);		// LCOV_EXCL_LINE
 
+	PriorityQueueNode max_node = node_value(pqueue, 1);
+
 	// Destroy την τιμή που αφαιρείται
-	destroy_node(pqueue_max(pqueue));
+	if (pqueue->destroy_value != NULL) {
+        pqueue->destroy_value(max_node->value);
+    }
+    free(max_node);
 
 	// Αντικαθιστούμε τον πρώτο κόμβο με τον τελευταίο και αφαιρούμε τον τελευταίο
 	node_swap(pqueue, 1, last_node);
@@ -239,8 +228,10 @@ void pqueue_remove_node(PriorityQueue pqueue, PriorityQueueNode node) {
 	bubble_up(pqueue, index);
 	bubble_down(pqueue, index);
 
-	temp_destroy = pqueue->destroy_value;
-	destroy_node(node);
+	if (pqueue->destroy_value != NULL) {
+        pqueue->destroy_value(node->value);
+    }
+    free(node);
 }
 
 static void pqueue_remove_node_nofree(PriorityQueue pqueue, PriorityQueueNode node) {
