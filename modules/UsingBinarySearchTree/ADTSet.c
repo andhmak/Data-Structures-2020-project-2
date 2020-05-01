@@ -7,12 +7,14 @@
 #include <stdlib.h>
 #include <assert.h>
 
+#include "ADTBList.h"
 #include "ADTSet.h"
 
 
 // Υλοποιούμε τον ADT Set μέσω BST, οπότε το struct set είναι ένα Δυαδικό Δέντρο Αναζήτησης.
 struct set {
 	SetNode root;				// η ρίζα, NULL αν είναι κενό δέντρο
+	BList blist;
 	int size;					// μέγεθος, ώστε η set_size να είναι Ο(1)
 	CompareFunc compare;		// η διάταξη
 	DestroyFunc destroy_value;	// Συνάρτηση που καταστρέφει ένα στοιχείο του set
