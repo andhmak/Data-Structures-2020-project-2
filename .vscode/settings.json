@@ -22,6 +22,7 @@
 	},
 	"files.associations": {
 		"adtset.h": "c",
-		"adtvector.h": "c"
+		"adtvector.h": "c",
+		"assert.h": "c"
 	},
 }

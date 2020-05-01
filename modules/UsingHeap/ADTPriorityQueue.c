@@ -18,7 +18,7 @@ struct priority_queue {
 };
 
 struct priority_queue_node {
-	Pointer value;
+	int* value;
 	int index;
 };
 
@@ -113,8 +113,7 @@ static void bubble_down(PriorityQueue pqueue, int node_id) {
 			max_child = right_child;
 
 	// Αν ο κόμβος είναι μικρότερος από το μέγιστο παιδί, swap και συνεχίζουμε προς τα κάτω
-	PriorityQueueNode a = node_value(pqueue, node_id), b = node_value(pqueue, max_child);
-	if (compare_nodes(a, b) < 0) {
+	if (compare_nodes(node_value(pqueue, node_id), node_value(pqueue, max_child)) < 0) {
 		node_swap(pqueue, node_id, max_child);
 		bubble_down(pqueue, max_child);
 	}
@@ -130,7 +129,7 @@ static void heapify(PriorityQueue pqueue, Vector values) {
 		pqnode->value = vector_get_at(values, i);
 		pqnode->index = i + 1;
 		// Προσθέτουμε την τιμή στο τέλος το σωρού
-		vector_insert_last(pqueue->vector, vector_get_at(values, i));
+		vector_insert_last(pqueue->vector, pqnode);
 	}
 	// καλούμε την bubble_down για κάθε εσωτερικό κόμβο από κάτω προς την ρίζα
 	for (int i = vector_size(values)/2 ; i > 0 ; i--) {
@@ -165,7 +164,7 @@ int pqueue_size(PriorityQueue pqueue) {
 }
 
 Pointer pqueue_max(PriorityQueue pqueue) {
-	return node_value(pqueue, 1);		// root
+	return ((PriorityQueueNode) node_value(pqueue, 1))->value;		// root
 }
 
 PriorityQueueNode pqueue_insert(PriorityQueue pqueue, Pointer value) {
@@ -239,6 +238,23 @@ void pqueue_remove_node(PriorityQueue pqueue, PriorityQueueNode node) {
  	// σωρού καλώντας τη bubble_down και την bubble_up για τη τον κόμβο.
 	bubble_up(pqueue, index);
 	bubble_down(pqueue, index);
+
+	temp_destroy = pqueue->destroy_value;
+	destroy_node(node);
+}
+
+static void pqueue_remove_node_nofree(PriorityQueue pqueue, PriorityQueueNode node) {
+	int index = node->index;
+	// Αλλάζουμε την θέση του κόμβου που θα αφαιρεθεί με το τελευταίο
+	// και τον αφαιρούμε από το τέλος
+	node_swap(pqueue, node->index, vector_size(pqueue->vector));
+	vector_remove_last(pqueue->vector);
+	// Ολοι οι κόμβοι ικανοποιούν την ιδιότητα του σωρού εκτός από τον τελευταίο
+ 	// κόμβο οου μετακινήθηκε, ο οποίος μπορεί να είναι μικρότερος από κάποιο παιδί του
+	// ή μεγαλύτερος από τον πατέρα του. Αρα μπορούμε να επαναφέρουμε την ιδιότητα του
+ 	// σωρού καλώντας τη bubble_down και την bubble_up για τη τον κόμβο.
+	bubble_up(pqueue, index);
+	bubble_down(pqueue, index);
 }
 
 static void pqueue_insert_node(PriorityQueue pqueue, PriorityQueueNode node) {
@@ -254,7 +270,7 @@ static void pqueue_insert_node(PriorityQueue pqueue, PriorityQueueNode node) {
 
 void pqueue_update_order(PriorityQueue pqueue, PriorityQueueNode node) {
 	DestroyFunc destroy = pqueue_set_destroy_value(pqueue, NULL);
-	pqueue_remove_node(pqueue, node);
+	pqueue_remove_node_nofree(pqueue, node);
 	pqueue_insert_node(pqueue, node);
 	pqueue_set_destroy_value(pqueue, destroy);
 }
