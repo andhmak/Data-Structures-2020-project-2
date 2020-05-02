@@ -138,11 +138,21 @@ BListNode blist_last(BList blist) {
 
 BListNode blist_next(BList blist, BListNode node) {
 	assert(node != NULL);	// LCOV_EXCL_LINE
+	// Προσοχή, αν node είναι το last, δείχνει στον dummy_last, εμείς όμως θέλουμε να επιστρέψουμε BLIST_EOF, όχι τον dummy_last!
+	//
+	if (node->next == blist->dummy_last) {
+		return BLIST_EOF;
+	}
 	return node->next;
 }
 
 BListNode blist_previous(BList blist, BListNode node) {
 	assert(node != NULL);	// LCOV_EXCL_LINE
+	// Προσοχή, αν node είναι το first, δείχνει στον dummy_first, εμείς όμως θέλουμε να επιστρέψουμε BLIST_BOF, όχι τον dummy_last!
+	//
+	if (node->prev == blist->dummy_first) {
+		return BLIST_BOF;
+	}
 	return node->prev;
 }
 
