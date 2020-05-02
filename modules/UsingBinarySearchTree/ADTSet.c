@@ -333,18 +333,30 @@ void set_destroy(Set set) {
 }
 
 SetNode set_first(Set set) {
+	if (blist_first(set->blist) == BLIST_BOF) {
+		return SET_BOF;
+	}
 	return blist_node_value(set->blist, blist_first(set->blist));
 }
 
 SetNode set_last(Set set) {
+	if (blist_last(set->blist) == BLIST_EOF) {
+		return SET_EOF;
+	}
 	return blist_node_value(set->blist, blist_last(set->blist));
 }
 
 SetNode set_previous(Set set, SetNode node) {
+	if (blist_previous(set->blist, node->bnode) == BLIST_BOF) {
+		return SET_BOF;
+	}
 	return (SetNode) blist_node_value(set->blist, blist_previous(set->blist, node->bnode));
 }
 
 SetNode set_next(Set set, SetNode node) {
+	if (blist_next(set->blist, node->bnode) == BLIST_EOF) {
+		return SET_EOF;
+	}
 	return (SetNode) blist_node_value(set->blist, blist_next(set->blist, node->bnode));
 }
 

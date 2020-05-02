@@ -23,6 +23,7 @@
 	"files.associations": {
 		"adtset.h": "c",
 		"adtvector.h": "c",
-		"assert.h": "c"
+		"assert.h": "c",
+		"common_types.h": "c"
 	},
 }
