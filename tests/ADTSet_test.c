@@ -6,8 +6,7 @@
 //////////////////////////////////////////////////////////////////
 
 #include "acutest.h"			// Απλή βιβλιοθήκη για unit testing
-#include "time.h"
-#include "stdlib.h"
+
 #include "ADTSet.h"
 
 
@@ -73,40 +72,22 @@ void test_insert() {
 	int N = 1000;
 
 	int* value_array[N];
-//	int* a;
-	int* b;
-	int* c;
-	srand(time(NULL));
+
 	// Δοκιμάζουμε την insert με νέες τιμές κάθε φορά και με αυτόματο free
 	for (int i = 0; i < N; i++) {
 		
-		value_array[i] = create_int(rand());
+		value_array[i] = create_int(i);
 
 		insert_and_test(set, value_array[i]);
-		if (i>5){
-			c = value_array[i - 5];
-			set_remove(set, c);
-		}
-		for (SetNode node = set_first(set) ; node != NULL ; node = set_next(set, node)) {
-			if (node->left != NULL) {
-				TEST_ASSERT(node->left->parent == node);
-			}
-			if (node->right != NULL) {
-				TEST_ASSERT(node->right->parent == node);
-			}
-		}
-//		if (i!=0){
-//			TEST_ASSERT(set_find_node(set, value_array[i])->parent == set_find_node(set, a));
-//		}
-//		a = value_array[i];
-//		TEST_ASSERT(set_size(set) == (i + 1));
-		b = create_int(*value_array[i]);
+
+		TEST_ASSERT(set_size(set) == (i + 1));
+
 	}
 
 	// Δοκιμάζουμε την insert με τιμές που υπάρχουν ήδη στο Set
 	// και ελέγχουμε ότι δεν ενημερώθηκε το size (καθώς δεν προστέθηκε νέος κόμβος)
-//	int* new_value = create_int(0);
-	insert_and_test(set, b);
+	int* new_value = create_int(0);
+	insert_and_test(set, new_value);
 
 	TEST_ASSERT(set_size(set) == N);
 
