@@ -268,7 +268,17 @@ void test_remove_node() {
 
 	// Διαγράφουμε όλους τους κόμβους
 	while (set_size(set)) {
-		set_remove_node(set, set_first(set));
+		if (set_size(set) > 1) {
+			if (set_size(set) % 2 == 0) {
+				set_remove_node(set, set_next(set, set_first(set)));
+			}
+			else {
+				set_remove_node(set, set_previous(set, set_last(set)));
+			}
+		}
+		else {
+			set_remove_node(set, set_first(set));
+		}
 		TEST_ASSERT(set_is_proper(set));
 	}
 
