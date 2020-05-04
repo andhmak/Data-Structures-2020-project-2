@@ -7,14 +7,13 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#include "ADTBList.h"
 #include "ADTSet.h"
 
 
 // Υλοποιούμε τον ADT Set μέσω BST, οπότε το struct set είναι ένα Δυαδικό Δέντρο Αναζήτησης.
 struct set {
+    SetNode dummy_first, dummy_last;
 	SetNode root;				// η ρίζα, NULL αν είναι κενό δέντρο
-	BList blist;
 	int size;					// μέγεθος, ώστε η set_size να είναι Ο(1)
 	CompareFunc compare;		// η διάταξη
 	DestroyFunc destroy_value;	// Συνάρτηση που καταστρέφει ένα στοιχείο του set
@@ -23,8 +22,8 @@ struct set {
 // Ενώ το struct set_node είναι κόμβος ενός Δυαδικού Δέντρου Αναζήτησης
 
 struct set_node {
-	BListNode bnode;
 	SetNode left, right;		// Παιδιά
+	SetNode prev, next;
 	SetNode parent;
 	Pointer value;
 };
@@ -44,7 +43,8 @@ static SetNode node_create(Pointer value) {
 	SetNode node = malloc(sizeof(*node));
 	node->left = NULL;
 	node->right = NULL;
-	node->bnode = NULL;
+	node->prev = NULL;
+    node->next = NULL;
 	node->value = value;
 	return node;
 }
@@ -95,17 +95,25 @@ static SetNode node_insert(Set set, SetNode node, CompareFunc compare, Pointer v
 		SetNode newnode = node_create(value);
 		if (parent != NULL) {
 			if (direction) {
-				blist_insert(set->blist, blist_next(set->blist, parent->bnode), newnode);
-				newnode->bnode = blist_next(set->blist, parent->bnode);
+				newnode->next = parent->next;
+				newnode->prev = parent;
+				parent->next->prev = newnode;
+				parent->next = newnode;
+//				blist_insert(set->blist, blist_next(set->blist, parent->bnode), newnode);
 			}
 			else {
-				blist_insert(set->blist, parent->bnode, newnode);
-				newnode->bnode = blist_previous(set->blist, parent->bnode);
+				newnode->next = parent;
+				newnode->prev = parent->prev;
+				parent->prev->next = newnode;
+				parent->prev = newnode;
+//				blist_insert(set->blist, parent->bnode, newnode);
 			}
 		}
 		else {
-			blist_insert(set->blist, BLIST_EOF, newnode);
-			newnode->bnode = blist_first(set->blist);
+            set->dummy_first->next = newnode;
+            set->dummy_last->prev = newnode;
+            newnode->prev = set->dummy_first;
+            newnode->next = set->dummy_last;
 		}
 		newnode->parent = parent;
 		return newnode;
@@ -151,14 +159,18 @@ static SetNode node_remove(Set set, SetNode node, CompareFunc compare, Pointer v
 		if (node->left == NULL) {
 			// Δεν υπάρχει αριστερό υποδέντρο, οπότε διαγράφεται απλά ο κόμβος και νέα ρίζα μπαίνει το δεξί παιδί
 			SetNode right = node->right;	// αποθήκευση πριν το free!
-			blist_remove(set->blist, node->bnode);
+            node->next->prev = node->prev;
+            node->prev->next = node->next;
+//			blist_remove(set->blist, node->bnode);
 			free(node);
 			return right;
 
 		} else if (node->right == NULL) {
 			// Δεν υπάρχει δεξί υποδέντρο, οπότε διαγράφεται απλά ο κόμβος και νέα ρίζα μπαίνει το αριστερό παιδί
 			SetNode left = node->left;		// αποθήκευση πριν το free!
-			blist_remove(set->blist, node->bnode);
+            node->next->prev = node->prev;
+            node->prev->next = node->next;
+//			blist_remove(set->blist, node->bnode);
 			free(node);
 			return left;
 
@@ -166,7 +178,7 @@ static SetNode node_remove(Set set, SetNode node, CompareFunc compare, Pointer v
 			// Υπάρχουν και τα δύο παιδιά. Αντικαθιστούμε την τιμή του node με την μικρότερη του δεξιού υποδέντρου, η οποία
 			// αφαιρείται. Η συνάρτηση node_remove_min κάνει ακριβώς αυτή τη δουλειά.
 
-			SetNode min_right = blist_node_value(set->blist, blist_next(set->blist, node->bnode));
+			SetNode min_right = node->next;
 			if (min_right != node->right){
 				min_right->parent->left = min_right->right;
 				if (min_right->right != NULL) {
@@ -183,8 +195,10 @@ static SetNode node_remove(Set set, SetNode node, CompareFunc compare, Pointer v
 			if (min_right->left != NULL) {
 				min_right->left->parent = min_right;
 			}
+            node->next->prev = node->prev;
+            node->prev->next = node->next;
 
-			blist_remove(set->blist, node->bnode);
+//			blist_remove(set->blist, node->bnode);
 
 			free(node);
 			return min_right;
@@ -235,7 +249,12 @@ Set set_create(CompareFunc compare, DestroyFunc destroy_value) {
 	set->size = 0;
 	set->compare = compare;
 	set->destroy_value = destroy_value;
-	set->blist = blist_create(NULL);
+    set->dummy_first = node_create(NULL);
+    set->dummy_last = node_create(NULL);
+    set->dummy_first->next = set->dummy_last;
+    set->dummy_last->prev = set->dummy_first;
+    set->dummy_first->prev = NULL;
+    set->dummy_last->next = NULL;
 
 	return set;
 }
@@ -285,36 +304,37 @@ DestroyFunc set_set_destroy_value(Set vec, DestroyFunc destroy_value) {
 
 void set_destroy(Set set) {
 	node_destroy(set->root, set->destroy_value);
-	blist_destroy(set->blist);
+    free(set->dummy_first);
+    free(set->dummy_last);
 	free(set);
 }
 
 SetNode set_first(Set set) {
-	if (blist_first(set->blist) == BLIST_BOF) {
+	if (set->dummy_first->next == set->dummy_last) {
 		return SET_BOF;
 	}
-	return blist_node_value(set->blist, blist_first(set->blist));
+	return set->dummy_first->next;
 }
 
 SetNode set_last(Set set) {
-	if (blist_last(set->blist) == BLIST_EOF) {
+	if (set->dummy_last->prev == set->dummy_first) {
 		return SET_EOF;
 	}
-	return blist_node_value(set->blist, blist_last(set->blist));
+	return set->dummy_last->prev;
 }
 
 SetNode set_previous(Set set, SetNode node) {
-	if (blist_previous(set->blist, node->bnode) == BLIST_BOF) {
+	if (node->prev == set->dummy_first) {
 		return SET_BOF;
 	}
-	return (SetNode) blist_node_value(set->blist, blist_previous(set->blist, node->bnode));
+	return node->prev;
 }
 
 SetNode set_next(Set set, SetNode node) {
-	if (blist_next(set->blist, node->bnode) == BLIST_EOF) {
+	if (node->next == set->dummy_last) {
 		return SET_EOF;
 	}
-	return (SetNode) blist_node_value(set->blist, blist_next(set->blist, node->bnode));
+	return node->next;
 }
 
 Pointer set_node_value(Set set, SetNode node) {
@@ -369,8 +389,11 @@ void set_insert_node(Set set, SetNode node) {
 			else {
 				iternode->left = node;
 				node->parent = iternode;
-				blist_insert(set->blist, iternode->bnode, node);
-				node->bnode = blist_previous(set->blist, iternode->bnode);
+                node->next = iternode;
+				node->prev = iternode->prev;
+				iternode->prev->next = node;
+				iternode->prev = node;
+//				blist_insert(set->blist, iternode->bnode, node);
 				return;
 			}
 		}
@@ -381,8 +404,11 @@ void set_insert_node(Set set, SetNode node) {
 			else {
 				iternode->right = node;
 				node->parent = iternode;
-				blist_insert(set->blist, blist_next(set->blist, iternode->bnode), node);
-				node->bnode = blist_next(set->blist, iternode->bnode);
+                node->next = iternode->next;
+				node->prev = iternode;
+				iternode->next->prev = node;
+				iternode->next = node;
+//				blist_insert(set->blist, blist_next(set->blist, iternode->bnode), node);
 				return;
 			}
 		}
@@ -396,7 +422,9 @@ void set_remove_node(Set set, SetNode node) {
 			if (set->root != NULL) {
 				set->root->parent = NULL;
 			}
-			blist_remove(set->blist, node->bnode);
+            node->next->prev = node->prev;
+            node->prev->next = node->next;
+//			blist_remove(set->blist, node->bnode);
 			if (set->destroy_value != NULL) {
 				set->destroy_value(node->value);
 			}
@@ -407,14 +435,16 @@ void set_remove_node(Set set, SetNode node) {
 			if (set->root != NULL) {
 				set->root->parent = NULL;
 			}
-			blist_remove(set->blist, node->bnode);
+            node->next->prev = node->prev;
+            node->prev->next = node->next;
+//			blist_remove(set->blist, node->bnode);
 			if (set->destroy_value != NULL) {
 				set->destroy_value(node->value);
 			}
 			free(node);
 		}
 		else {
-			SetNode min_right = blist_node_value(set->blist, blist_next(set->blist, node->bnode));
+			SetNode min_right = node->next;
 			if (min_right != node->right){
 				min_right->parent->left = min_right->right;
 				if (min_right->right != NULL) {
@@ -433,7 +463,9 @@ void set_remove_node(Set set, SetNode node) {
 			}
 			set->root = min_right;
 			min_right->parent = NULL;
-			blist_remove(set->blist, node->bnode);
+            node->next->prev = node->prev;
+            node->prev->next = node->next;
+//			blist_remove(set->blist, node->bnode);
 			if (set->destroy_value != NULL) {
 				set->destroy_value(node->value);
 			}
@@ -451,7 +483,9 @@ void set_remove_node(Set set, SetNode node) {
 			if (node->left != NULL) {
 				node->left->parent = node->parent;
 			}
-			blist_remove(set->blist, node->bnode);
+            node->next->prev = node->prev;
+            node->prev->next = node->next;
+//			blist_remove(set->blist, node->bnode);
 			if (set->destroy_value != NULL) {
 				set->destroy_value(node->value);
 			}
@@ -467,14 +501,16 @@ void set_remove_node(Set set, SetNode node) {
 			if (node->right != NULL) {
 				node->right->parent = node->parent;
 			}
-			blist_remove(set->blist, node->bnode);
+            node->next->prev = node->prev;
+            node->prev->next = node->next;
+//			blist_remove(set->blist, node->bnode);
 			if (set->destroy_value != NULL) {
 				set->destroy_value(node->value);
 			}
 			free(node);
 		}
 		else {
-			SetNode min_right = blist_node_value(set->blist, blist_next(set->blist, node->bnode));
+			SetNode min_right = node->next;
 			if (min_right != node->right){
 				min_right->parent->left = min_right->right;
 				if (min_right->right != NULL) {
@@ -498,7 +534,9 @@ void set_remove_node(Set set, SetNode node) {
 				node->parent->left = min_right;
 			}
 			min_right->parent = node->parent;
-			blist_remove(set->blist, node->bnode);
+            node->next->prev = node->prev;
+            node->prev->next = node->next;
+//			blist_remove(set->blist, node->bnode);
 			if (set->destroy_value != NULL) {
 				set->destroy_value(node->value);
 			}
