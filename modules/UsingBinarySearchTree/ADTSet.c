@@ -444,50 +444,34 @@ void set_remove_node(Set set, SetNode node) {
 		if (node->right == NULL) {
 			if (node->parent->right == node) {
 				node->parent->right = node->left;
-				if (node->left != NULL) {
-					node->left->parent = node->parent;
-				}
-				blist_remove(set->blist, node->bnode);
-				if (set->destroy_value != NULL) {
-					set->destroy_value(node->value);
-				}
-				free(node);
 			}
 			else {
 				node->parent->left = node->left;
-				if (node->left != NULL) {
-					node->left->parent = node->parent;
-				}
-				blist_remove(set->blist, node->bnode);
-				if (set->destroy_value != NULL) {
-					set->destroy_value(node->value);
-				}
-				free(node);
 			}
+			if (node->left != NULL) {
+				node->left->parent = node->parent;
+			}
+			blist_remove(set->blist, node->bnode);
+			if (set->destroy_value != NULL) {
+				set->destroy_value(node->value);
+			}
+			free(node);
 		}
 		else if (node->left == NULL) {
 			if (node->parent->right == node) {
 				node->parent->right = node->right;
-				if (node->right != NULL) {
-					node->right->parent = node->parent;
-				}
-				blist_remove(set->blist, node->bnode);
-				if (set->destroy_value != NULL) {
-					set->destroy_value(node->value);
-				}
-				free(node);
 			}
 			else {
 				node->parent->left = node->right;
-				if (node->right != NULL) {
-					node->right->parent = node->parent;
-				}
-				blist_remove(set->blist, node->bnode);
-				if (set->destroy_value != NULL) {
-					set->destroy_value(node->value);
-				}
-				free(node);
 			}
+			if (node->right != NULL) {
+				node->right->parent = node->parent;
+			}
+			blist_remove(set->blist, node->bnode);
+			if (set->destroy_value != NULL) {
+				set->destroy_value(node->value);
+			}
+			free(node);
 		}
 		else {
 			SetNode min_right = blist_node_value(set->blist, blist_next(set->blist, node->bnode));
