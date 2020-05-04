@@ -21,12 +21,13 @@ struct set {
 };
 
 // Ενώ το struct set_node είναι κόμβος ενός Δυαδικού Δέντρου Αναζήτησης
+
 struct set_node {
 	BListNode bnode;
 	SetNode left, right;		// Παιδιά
+	SetNode parent;
 	Pointer value;
 };
-
 
 // Παρατηρήσεις για τις node_* συναρτήσεις
 // - είναι βοηθητικές (κρυφές από το χρήστη) και υλοποιούν διάφορες λειτουργίες πάνω σε κόμβους του BST.
@@ -152,6 +153,7 @@ static SetNode node_insert(Set set, SetNode node, CompareFunc compare, Pointer v
 			blist_insert(set->blist, BLIST_EOF, newnode);
 			newnode->bnode = blist_first(set->blist);
 		}
+		newnode->parent = parent;
 		return newnode;
 	}
 
@@ -179,18 +181,23 @@ static SetNode node_insert(Set set, SetNode node, CompareFunc compare, Pointer v
 
 // Αφαιρεί και αποθηκεύει στο min_node τον μικρότερο κόμβο του υποδέντρου με ρίζα node.
 // Επιστρέφει τη νέα ρίζα του υποδέντρου.
+// (Λειτουργεί μόνο για "δεξιά" υποδέντρα)
 
-static SetNode node_remove_min(SetNode node, SetNode* min_node) {
-	if (node->left == NULL) {
-		// Δεν έχουμε αριστερό υποδέντρο, οπότε ο μικρότερος είναι ο ίδιος ο node
-		*min_node = node;
-		return node->right;		// νέα ρίζα είναι το δεξιό παιδί
-
-	} else {
-		// Εχουμε αριστερό υποδέντρο, οπότε η μικρότερη τιμή είναι εκεί. Συνεχίζουμε αναδρομικά
-		// και ενημερώνουμε το node->left με τη νέα ρίζα του υποδέντρου.
-		node->left = node_remove_min(node->left, min_node);
-		return node;			// η ρίζα δεν μεταβάλλεται
+static SetNode node_remove_min(Set set, SetNode node, SetNode* min_node) {
+	*min_node = blist_node_value(set->blist, blist_next(set->blist, node->parent->bnode));
+	if ((*min_node) == node) {
+		(*min_node)->parent->right = (*min_node)->right;
+		if ((*min_node)->right != NULL) {
+			(*min_node)->right->parent = (*min_node)->parent;
+		}
+		return (*min_node)->right;
+	}
+	else {
+		(*min_node)->parent->left = (*min_node)->right;
+		if ((*min_node)->right != NULL) {
+			(*min_node)->right->parent = (*min_node)->parent;  //<----------think i forgot that before
+		}
+		return node;
 	}
 }
 
@@ -228,11 +235,17 @@ static SetNode node_remove(Set set, SetNode node, CompareFunc compare, Pointer v
 			// αφαιρείται. Η συνάρτηση node_remove_min κάνει ακριβώς αυτή τη δουλειά.
 
 			SetNode min_right;
-			node->right = node_remove_min(node->right, &min_right); //<-------------can be improved
+			node->right = node_remove_min(set, node->right, &min_right); //<-------------can be improved
 
 			// Σύνδεση του min_right στη θέση του node
 			min_right->left = node->left;
 			min_right->right = node->right;
+			if (min_right->left != NULL) {
+				min_right->left->parent = min_right;
+			}
+			if (min_right->right != NULL) {
+				min_right->right->parent = min_right;
+			}
 
 			blist_remove(set->blist, node->bnode);
 
@@ -242,11 +255,18 @@ static SetNode node_remove(Set set, SetNode node, CompareFunc compare, Pointer v
 	}
 
 	// compare_res != 0, συνεχίζουμε στο αριστερό ή δεξί υποδέντρο, η ρίζα δεν αλλάζει.
-	if (compare_res < 0)
+	if (compare_res < 0) {
 		node->left  = node_remove(set, node->left,  compare, value, removed, old_value);
-	else
+		if (node->left != NULL) {
+			node->left->parent = node;
+		}
+	}
+	else {
 		node->right = node_remove(set, node->right, compare, value, removed, old_value);
-
+		if (node->right != NULL) {
+			node->right->parent = node;
+		}
+	}
 	return node;
 }
 
@@ -414,7 +434,7 @@ void set_remove_node(Set set, SetNode node) {
 			}
 			else {
 				SetNode min_right;
-				min_right->right = node_remove_min(node->right, &min_right);
+				min_right->right = node_remove_min(set, node->right, &min_right);
 				min_right->left = node->left;
 				iternode->left = min_right;
 			}
@@ -433,12 +453,13 @@ void set_remove_node(Set set, SetNode node) {
 			}
 			else {
 				SetNode min_right;
-				min_right->right = node_remove_min(node->right, &min_right);
+				min_right->right = node_remove_min(set, node->right, &min_right);
 				min_right->left = node->left;
 				iternode->right = min_right;
 			}
 			node->right = NULL;
 			node->left = NULL;
+			blist_remove(set->blist, node->bnode);
 			free(node);
 			set->size--;
 			break;
