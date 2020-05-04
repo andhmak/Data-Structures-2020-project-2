@@ -128,7 +128,6 @@ void list_destroy(List list) {
 
 	// Τέλος free το ίδιο το struct
 	free(list);
-	list->steps = list->size;
 }
 
 

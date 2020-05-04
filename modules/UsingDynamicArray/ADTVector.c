@@ -128,7 +128,6 @@ DestroyFunc vector_set_destroy_value(Vector vec, DestroyFunc destroy_value) {
 }
 
 void vector_destroy(Vector vec) {
-	vec->steps = 1;
 	// Αν υπάρχει συνάρτηση destroy_value, την καλούμε για όλα τα στοιχεία
 	if (vec->destroy_value != NULL) {
 		vec->steps += vec->size;

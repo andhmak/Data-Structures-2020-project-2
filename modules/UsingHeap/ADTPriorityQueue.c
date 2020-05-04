@@ -179,11 +179,11 @@ void pqueue_remove_max(PriorityQueue pqueue) {
 	if (pqueue->destroy_value != NULL) {
         pqueue->destroy_value(max_node->value);
     }
-    free(max_node);
 
 	// Αντικαθιστούμε τον πρώτο κόμβο με τον τελευταίο και αφαιρούμε τον τελευταίο
 	node_swap(pqueue, 1, last_node);
 	vector_remove_last(pqueue->vector);
+    free(max_node);
 
  	// Ολοι οι κόμβοι ικανοποιούν την ιδιότητα του σωρού εκτός από τη νέα ρίζα
  	// που μπορεί να είναι μικρότερη από κάποιο παιδί της. Αρα μπορούμε να
