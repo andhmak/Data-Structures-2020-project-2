@@ -17,7 +17,7 @@ UsingHeap_ADTPriorityQueue_test_OBJS    = ADTPriorityQueue_test.o $(MODULES)/Usi
 # Υλοποιήσεις μέσω ADTSet: ADTPriorityQueue
 # Το ADTSet αλλά και το test χρησιμοποιούν Vector, οπότε χρειαζόμαστε και μια υλοποίηση του ADTVector.
 #
-UsingADTSet_ADTPriorityQueue_test_OBJS    = ADTPriorityQueue_test.o $(MODULES)/UsingADTSet/ADTPriorityQueue.o $(MODULES)/UsingBinarySearchTree/ADTSet.o $(MODULES)/UsingDynamicArray/ADTVector.o
+UsingADTSet_ADTPriorityQueue_test_OBJS    = ADTPriorityQueue_test.o $(MODULES)/UsingADTSet/ADTPriorityQueue.o $(MODULES)/UsingBinarySearchTree/ADTSet.o $(MODULES)/UsingDynamicArray/ADTVector.o $(MODULES)/UsingDoublyLL/ADTBList.o
 
 # Υλοποιήσεις μέσω BinarySearchTree: ADTSet
 #

@@ -250,6 +250,30 @@ void test_iterate() {
 	set_destroy(set);
 }
 
+void test_remove_node() {
+	Set set = set_create(compare_ints, free);
+
+	int N = 1000;
+	int* value_array[N];
+	for (int i = 0; i < N; i++)
+		value_array[i] = create_int(i);
+
+	// Ανακατεύουμε το value_array ώστε να υπάρχει ομοιόμορφη εισαγωγή τιμών
+	// Πχ εάν εισάγουμε δείκτες με αύξουσα σειρά τιμών, τότε εάν το Set υλοποιείται με BST,
+	// οι κόμβοι θα προστίθενται μόνο δεξιά της ρίζας, άρα και η set_remove_node δεν θα δοκιμάζεται πλήρως
+	shuffle(value_array, N);
+
+	for (int i = 0; i < N; i++)
+		set_insert(set, value_array[i]);
+
+	// Διαγράφουμε όλους τους κόμβους
+	while (set_size(set)) {
+		set_remove_node(set, set_first(set));
+		TEST_ASSERT(set_is_proper(set));
+	}
+
+	set_destroy(set);
+}
 
 // Λίστα με όλα τα tests προς εκτέλεση
 TEST_LIST = {
@@ -258,5 +282,6 @@ TEST_LIST = {
 	{ "set_remove", test_remove },
 	{ "set_find", 	test_find 	},
 	{ "set_iterate",test_iterate 	},
+	{ "set_remove_node", test_remove_node},
 	{ NULL, NULL } // τερματίζουμε τη λίστα με NULL
 };

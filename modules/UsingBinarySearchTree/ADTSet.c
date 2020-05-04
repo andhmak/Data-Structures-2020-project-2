@@ -84,52 +84,6 @@ static SetNode node_find_max(SetNode node) {
 		: node;									// Αλλιώς η μεγαλύτερη τιμή είναι στο ίδιο το node
 }
 
-// Επιστρέφει τον προηγούμενο (στη σειρά διάταξης) του κόμβου target στο υποδέντρο με ρίζα node,
-// ή NULL αν ο target είναι ο μικρότερος του υποδέντρου. Το υποδέντρο πρέπει να περιέχει τον κόμβο
-// target, οπότε δεν μπορεί να είναι κενό.
-
-//static SetNode node_find_previous(SetNode node, CompareFunc compare, SetNode target) {
-//	if (node == target) {
-		// Ο target είναι η ρίζα του υποδέντρου, o προηγούμενός του είναι ο μεγαλύτερος του αριστερού υποδέντρου.
-		// (Aν δεν υπάρχει αριστερό παιδί, τότε ο κόμβος με τιμή value είναι ο μικρότερος του υποδέντρου, οπότε
-		// η node_find_max θα επιστρέψει NULL όπως θέλουμε.)
-//		return node_find_max(node->left);
-
-//	} else if (compare(target->value, node->value) < 0) {
-		// Ο target είναι στο αριστερό υποδέντρο, οπότε και ο προηγούμενός του είναι εκεί.
-//		return node_find_previous(node->left, compare, target);
-
-//	} else {
-		// Ο target είναι στο δεξί υποδέντρο, ο προηγούμενός του μπορεί να είναι επίσης εκεί, διαφορετικά
-		// ο προηγούμενός του είναι ο ίδιος ο node.
-//		SetNode res = node_find_previous(node->right, compare, target);
-//		return res != NULL ? res : node;
-//	}
-//}
-
-// Επιστρέφει τον επόμενο (στη σειρά διάταξης) του κόμβου target στο υποδέντρο με ρίζα node,
-// ή NULL αν ο target είναι ο μεγαλύτερος του υποδέντρου. Το υποδέντρο πρέπει να περιέχει τον κόμβο
-// target, οπότε δεν μπορεί να είναι κενό.
-
-//static SetNode node_find_next(SetNode node, CompareFunc compare, SetNode target) {
-//	if (node == target) {
-		// Ο target είναι η ρίζα του υποδέντρου, o προηγούμενός του είναι ο μεγαλύτερος του αριστερού υποδέντρου.
-		// (Aν δεν υπάρχει αριστερό παιδί, τότε ο κόμβος με τιμή value είναι ο μικρότερος του υποδέντρου, οπότε
-		// η node_find_max θα επιστρέψει NULL όπως θέλουμε.)
-//		return node_find_min(node->right);
-
-//	} else if (compare(target->value, node->value) > 0) {
-		// Ο target είναι στο αριστερό υποδέντρο, οπότε και ο προηγούμενός του είναι εκεί.
-//		return node_find_next(node->right, compare, target);
-
-//	} else {
-		// Ο target είναι στο δεξί υποδέντρο, ο προηγούμενός του μπορεί να είναι επίσης εκεί, διαφορετικά
-		// ο προηγούμενός του είναι ο ίδιος ο node.
-//		SetNode res = node_find_next(node->left, compare, target);
-//		return res != NULL ? res : node;
-//	}
-//}
-
 // Αν υπάρχει κόμβος με τιμή ισοδύναμη της value, αλλάζει την τιμή του σε value, διαφορετικά προσθέτει
 // νέο κόμβο με τιμή value. Επιστρέφει τη νέα ρίζα του υποδέντρου, και θέτει το *inserted σε true
 // αν έγινε προσθήκη, ή false αν έγινε ενημέρωση.
@@ -179,28 +133,6 @@ static SetNode node_insert(Set set, SetNode node, CompareFunc compare, Pointer v
 	return node;	// η ρίζα του υποδέντρου δεν αλλάζει
 }
 
-// Αφαιρεί και αποθηκεύει στο min_node τον μικρότερο κόμβο του υποδέντρου με ρίζα node.
-// Επιστρέφει τη νέα ρίζα του υποδέντρου.
-// (Λειτουργεί μόνο για "δεξιά" υποδέντρα)
-
-static SetNode node_remove_min(Set set, SetNode node, SetNode* min_node) {
-	*min_node = blist_node_value(set->blist, blist_next(set->blist, node->parent->bnode));
-	if ((*min_node) == node) {
-		(*min_node)->parent->right = (*min_node)->right;
-		if ((*min_node)->right != NULL) {
-			(*min_node)->right->parent = (*min_node)->parent;
-		}
-		return (*min_node)->right;
-	}
-	else {
-		(*min_node)->parent->left = (*min_node)->right;
-		if ((*min_node)->right != NULL) {
-			(*min_node)->right->parent = (*min_node)->parent;  //<----------think i forgot that before
-		}
-		return node;
-	}
-}
-
 // Διαγράφει το κόμβο με τιμή ισοδύναμη της value, αν υπάρχει. Επιστρέφει τη νέα ρίζα του
 // υποδέντρου, και θέτει το *removed σε true αν έγινε πραγματικά διαγραφή.
 
@@ -234,17 +166,22 @@ static SetNode node_remove(Set set, SetNode node, CompareFunc compare, Pointer v
 			// Υπάρχουν και τα δύο παιδιά. Αντικαθιστούμε την τιμή του node με την μικρότερη του δεξιού υποδέντρου, η οποία
 			// αφαιρείται. Η συνάρτηση node_remove_min κάνει ακριβώς αυτή τη δουλειά.
 
-			SetNode min_right;
-			node->right = node_remove_min(set, node->right, &min_right); //<-------------can be improved
+			SetNode min_right = blist_node_value(set->blist, blist_next(set->blist, node->bnode));
+			if (min_right != node->right){
+				min_right->parent->left = min_right->right;
+				if (min_right->right != NULL) {
+					min_right->right->parent = min_right->parent;
+				}
+				min_right->right = node->right;
+				if (min_right->right != NULL) {
+					min_right->right->parent = min_right;
+				}
+			}
 
 			// Σύνδεση του min_right στη θέση του node
 			min_right->left = node->left;
-			min_right->right = node->right;
 			if (min_right->left != NULL) {
 				min_right->left->parent = min_right;
-			}
-			if (min_right->right != NULL) {
-				min_right->right->parent = min_right;
 			}
 
 			blist_remove(set->blist, node->bnode);
@@ -421,52 +358,6 @@ bool set_is_proper(Set node) {
 
 // extra
 
-// no need to search lowest nodes
-
-void set_remove_node(Set set, SetNode node) {
-	for (SetNode iternode = set_first(set) ; iternode != NULL ; iternode = set_next(set, iternode)) {
-		if (iternode->left == node) {
-			if (node->left == NULL) {
-				iternode->left = node->right;
-			}
-			else if (node->right == NULL) {
-				iternode->left = node->left;
-			}
-			else {
-				SetNode min_right;
-				min_right->right = node_remove_min(set, node->right, &min_right);
-				min_right->left = node->left;
-				iternode->left = min_right;
-			}
-			node->right = NULL;
-			node->left = NULL;
-			set->size--;
-			free(node);
-			break;
-		}
-		else if (iternode->right == node) {
-			if (node->left == NULL) {
-				iternode->right = node->right;
-			}
-			else if (node->right == NULL) {
-				iternode->right = node->left;
-			}
-			else {
-				SetNode min_right;
-				min_right->right = node_remove_min(set, node->right, &min_right);
-				min_right->left = node->left;
-				iternode->right = min_right;
-			}
-			node->right = NULL;
-			node->left = NULL;
-			blist_remove(set->blist, node->bnode);
-			free(node);
-			set->size--;
-			break;
-		}
-	}
-}
-
 void set_insert_node(Set set, SetNode node) {
 	// Το πού θα γίνει η προσθήκη εξαρτάται από τη διάταξη της τιμής
 	SetNode iternode = set->root;
@@ -477,6 +368,9 @@ void set_insert_node(Set set, SetNode node) {
 			}
 			else {
 				iternode->left = node;
+				node->parent = iternode;
+				blist_insert(set->blist, iternode->bnode, node);
+				node->bnode = blist_previous(set->blist, iternode->bnode);
 				return;
 			}
 		}
@@ -486,10 +380,148 @@ void set_insert_node(Set set, SetNode node) {
 			}
 			else {
 				iternode->right = node;
+				node->parent = iternode;
+				blist_insert(set->blist, blist_next(set->blist, iternode->bnode), node);
+				node->bnode = blist_next(set->blist, iternode->bnode);
 				return;
 			}
 		}
 	}
+}
+
+void set_remove_node(Set set, SetNode node) {
+	if (node == set->root) {
+		if (node->right == NULL) {
+			set->root = node->left;
+			if (set->root != NULL) {
+				set->root->parent = NULL;
+			}
+			blist_remove(set->blist, node->bnode);
+			if (set->destroy_value != NULL) {
+				set->destroy_value(node->value);
+			}
+			free(node);
+		}
+		else if (node->left == NULL) {
+			set->root = node->right;
+			if (set->root != NULL) {
+				set->root->parent = NULL;
+			}
+			blist_remove(set->blist, node->bnode);
+			if (set->destroy_value != NULL) {
+				set->destroy_value(node->value);
+			}
+			free(node);
+		}
+		else {
+			SetNode min_right = blist_node_value(set->blist, blist_next(set->blist, node->bnode));
+			if (min_right != node->right){
+				min_right->parent->left = min_right->right;
+				if (min_right->right != NULL) {
+					min_right->right->parent = min_right->parent;
+				}
+				min_right->right = node->right;
+				if (min_right->right != NULL) {
+					min_right->right->parent = min_right;
+				}
+			}
+
+			// Σύνδεση του min_right στη θέση του node
+			min_right->left = node->left;
+			if (min_right->left != NULL) {
+				min_right->left->parent = min_right;
+			}
+			set->root = min_right;
+			min_right->parent = NULL;
+			blist_remove(set->blist, node->bnode);
+			if (set->destroy_value != NULL) {
+				set->destroy_value(node->value);
+			}
+			free(node);
+		}
+	}
+	else {
+		if (node->right == NULL) {
+			if (node->parent->right == node) {
+				node->parent->right = node->left;
+				if (node->left != NULL) {
+					node->left->parent = node->parent;
+				}
+				blist_remove(set->blist, node->bnode);
+				if (set->destroy_value != NULL) {
+					set->destroy_value(node->value);
+				}
+				free(node);
+			}
+			else {
+				node->parent->left = node->left;
+				if (node->left != NULL) {
+					node->left->parent = node->parent;
+				}
+				blist_remove(set->blist, node->bnode);
+				if (set->destroy_value != NULL) {
+					set->destroy_value(node->value);
+				}
+				free(node);
+			}
+		}
+		else if (node->left == NULL) {
+			if (node->parent->right == node) {
+				node->parent->right = node->right;
+				if (node->right != NULL) {
+					node->right->parent = node->parent;
+				}
+				blist_remove(set->blist, node->bnode);
+				if (set->destroy_value != NULL) {
+					set->destroy_value(node->value);
+				}
+				free(node);
+			}
+			else {
+				node->parent->left = node->right;
+				if (node->right != NULL) {
+					node->right->parent = node->parent;
+				}
+				blist_remove(set->blist, node->bnode);
+				if (set->destroy_value != NULL) {
+					set->destroy_value(node->value);
+				}
+				free(node);
+			}
+		}
+		else {
+			SetNode min_right = blist_node_value(set->blist, blist_next(set->blist, node->bnode));
+			if (min_right != node->right){
+				min_right->parent->left = min_right->right;
+				if (min_right->right != NULL) {
+					min_right->right->parent = min_right->parent;
+				}
+				min_right->right = node->right;
+				if (min_right->right != NULL) {
+					min_right->right->parent = min_right;
+				}
+			}
+
+			// Σύνδεση του min_right στη θέση του node
+			min_right->left = node->left;
+			if (min_right->left != NULL) {
+				min_right->left->parent = min_right;
+			}
+			if (node->parent->right == node) {
+				node->parent->right = min_right;
+			}
+			else {
+				node->parent->left = min_right;
+			}
+			min_right->parent = node->parent;;
+			blist_remove(set->blist, node->bnode);
+			if (set->destroy_value != NULL) {
+				set->destroy_value(node->value);
+			}
+			free(node);
+		}
+	}
+	set->size--;
 }
 
 void set_remove_wrongvalue(Set set, Pointer value) {
