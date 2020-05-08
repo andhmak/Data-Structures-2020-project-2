@@ -374,7 +374,90 @@ bool set_is_proper(Set node) {
 
 // συναρτήσεις για το bonus της άσκησης 3, με την set_remove_node να είναι και για το bonus της 5
 
-// Προσθέτει τον κόμβο node
+// Αφαιρεί τον κόμβο node
+
+void set_remove_node(Set set, SetNode node) {
+	// Εύρεση θέσης του node, για να μπει εκεί ο κόμβος που θα πάρει την θέση του
+	SetNode *position = &(set->root);
+	if (node != set->root) {
+		if (node->parent->right == node) {
+			position = &(node->parent->right);
+		}
+		else {
+			position = &(node->parent->left);
+		}
+	}
+	// Δεν υπάρχει αριστερό υποδέντρο, οπότε διαγράφεται απλά ο κόμβος και στην θέση του node μπαίνει το δεξί παιδί
+	if (node->right == NULL) {
+		*position = node->left;
+		if (node->left != NULL) {
+			node->left->parent = node->parent;
+		}
+		blist_remove(set->blist, node->bnode);
+		if (set->destroy_value != NULL) {
+			set->destroy_value(node->value);
+		}
+		free(node);
+	}
+	// Δεν υπάρχει δεξιό υποδέντρο, οπότε διαγράφεται απλά ο κόμβος και στην θέση του node μπαίνει το αριστερό παιδί
+	else if (node->left == NULL) {
+		*position = node->right;
+		if (node->right != NULL) {
+			node->right->parent = node->parent;
+		}
+		blist_remove(set->blist, node->bnode);
+		if (set->destroy_value != NULL) {
+			set->destroy_value(node->value);
+		}
+		free(node);
+	}
+	else {
+		// Υπάρχουν και τα δύο παιδιά. Αντικαθιστούμε την τιμή του node με την μικρότερη του δεξιού υποδέντρου 
+		// (δηλαδή την επόμενη στην λίστα), η οποία αφαιρείται.
+		SetNode min_right = blist_node_value(set->blist, blist_next(set->blist, node->bnode));
+
+		// Σύνδεση του min_right στη θέση του node και επιδιόρθωση του
+		// μέρους του δέντρου από όπου αφαιρείται ο min_right
+		if (min_right != node->right) {
+			min_right->parent->left = min_right->right;
+			if (min_right->right != NULL) {
+				min_right->right->parent = min_right->parent;
+			}
+			min_right->right = node->right;
+			if (min_right->right != NULL) {
+				min_right->right->parent = min_right;
+			}
+		}
+		
+		min_right->left = node->left;
+		if (min_right->left != NULL) {
+			min_right->left->parent = min_right;
+		}
+		*position = min_right;
+		min_right->parent = node->parent;
+		blist_remove(set->blist, node->bnode);
+		if (set->destroy_value != NULL) {
+			set->destroy_value(node->value);
+		}
+		free(node);
+	}
+	set->size--;
+}
+
+// Αφαιρεί τον την τιμή value, που βρίσκεται πιθανώς σε λάθος σημείο του δέντρου
+
+void set_remove_wrong_value(Set set, Pointer value) {
+	// Ψάχνουμε όλους τους κόμβους
+	for (SetNode node = set_first(set) ; node != SET_EOF ; node  = set_next(set, node)) {
+		// Όταν βρούμε τον κόμβο που ψάχνουμε τον αφαιρούμε
+		if (!set->compare(set_node_value(set, node), value)) {
+			set_remove_node(set, node);
+			break;
+		}
+	}
+}
+
+// Προσθέτει τον κόμβο node (δεν χρησιμοποιείται κάπου)
 
 void set_insert_node(Set set, SetNode node) {
 	// Το πού θα γίνει η προσθήκη εξαρτάται από τη διάταξη της τιμής σύμφωνα με την compare
@@ -403,140 +486,6 @@ void set_insert_node(Set set, SetNode node) {
 				node->bnode = blist_next(set->blist, iternode->bnode);
 				return;
 			}
-		}
-	}
-}
-
-// Αφαιρεί τον κόμβο node
-
-void set_remove_node(Set set, SetNode node) {
-	if (node == set->root) {
-		if (node->right == NULL) {
-			set->root = node->left;
-			if (set->root != NULL) {
-				set->root->parent = NULL;
-			}
-			blist_remove(set->blist, node->bnode);
-			if (set->destroy_value != NULL) {
-				set->destroy_value(node->value);
-			}
-			free(node);
-		}
-		else if (node->left == NULL) {
-			set->root = node->right;
-			if (set->root != NULL) {
-				set->root->parent = NULL;
-			}
-			blist_remove(set->blist, node->bnode);
-			if (set->destroy_value != NULL) {
-				set->destroy_value(node->value);
-			}
-			free(node);
-		}
-		else {
-			SetNode min_right = blist_node_value(set->blist, blist_next(set->blist, node->bnode));
-			if (min_right != node->right){
-				min_right->parent->left = min_right->right;
-				if (min_right->right != NULL) {
-					min_right->right->parent = min_right->parent;
-				}
-				min_right->right = node->right;
-				if (min_right->right != NULL) {
-					min_right->right->parent = min_right;
-				}
-			}
-
-			// Σύνδεση του min_right στη θέση του node
-			min_right->left = node->left;
-			if (min_right->left != NULL) {
-				min_right->left->parent = min_right;
-			}
-			set->root = min_right;
-			min_right->parent = NULL;
-			blist_remove(set->blist, node->bnode);
-			if (set->destroy_value != NULL) {
-				set->destroy_value(node->value);
-			}
-			free(node);
-		}
-	}
-	else {
-		if (node->right == NULL) {
-			if (node->parent->right == node) {
-				node->parent->right = node->left;
-			}
-			else {
-				node->parent->left = node->left;
-			}
-			if (node->left != NULL) {
-				node->left->parent = node->parent;
-			}
-			blist_remove(set->blist, node->bnode);
-			if (set->destroy_value != NULL) {
-				set->destroy_value(node->value);
-			}
-			free(node);
-		}
-		else if (node->left == NULL) {
-			if (node->parent->right == node) {
-				node->parent->right = node->right;
-			}
-			else {
-				node->parent->left = node->right;
-			}
-			if (node->right != NULL) {
-				node->right->parent = node->parent;
-			}
-			blist_remove(set->blist, node->bnode);
-			if (set->destroy_value != NULL) {
-				set->destroy_value(node->value);
-			}
-			free(node);
-		}
-		else {
-			SetNode min_right = blist_node_value(set->blist, blist_next(set->blist, node->bnode));
-			if (min_right != node->right){
-				min_right->parent->left = min_right->right;
-				if (min_right->right != NULL) {
-					min_right->right->parent = min_right->parent;
-				}
-				min_right->right = node->right;
-				if (min_right->right != NULL) {
-					min_right->right->parent = min_right;
-				}
-			}
-
-			// Σύνδεση του min_right στη θέση του node
-			min_right->left = node->left;
-			if (min_right->left != NULL) {
-				min_right->left->parent = min_right;
-			}
-			if (node->parent->right == node) {
-				node->parent->right = min_right;
-			}
-			else {
-				node->parent->left = min_right;
-			}
-			min_right->parent = node->parent;
-			blist_remove(set->blist, node->bnode);
-			if (set->destroy_value != NULL) {
-				set->destroy_value(node->value);
-			}
-			free(node);
-		}
-	}
-	set->size--;
-}
-
-// Αφαιρεί τον την τιμή value, που βρίσκεται πιθανώς σε λάθος σημείο του δέντρου
-
-void set_remove_wrong_value(Set set, Pointer value) {
-	// Ψάχνουμε όλους τους κόμβους
-	for (SetNode node = set_first(set) ; node != SET_EOF ; node  = set_next(set, node)) {
-		// Όταν βρούμε τον κόμβο που ψάχνουμε τον αφαιρούμε
-		if (!set->compare(set_node_value(set, node), value)) {
-			set_remove_node(set, node);
-			break;
 		}
 	}
 }
