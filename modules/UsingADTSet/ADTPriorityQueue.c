@@ -187,7 +187,7 @@ void pqueue_update_order(PriorityQueue pqueue, PriorityQueueNode node) {
     DestroyFunc old_destroy = set_set_destroy_value(pqueue->set, NULL);
     // Αφαιρούμε από το set τον κόμβο, που τώρα θα έχει λάθος περιεχόμενο και
     // χρειάζεται διαφορετικό αλγόριθμο από τον συνηθισμένο
-    set_remove_wrongvalue(pqueue->set, node);
+    set_remove_wrong_value(pqueue->set, node);
     // Ξαναπροσθέτουμε τον κόμβο
     set_insert(pqueue->set, node);
     // Επαναφέρουμε την destroy_value

@@ -361,8 +361,9 @@ bool set_is_proper(Set node) {
 // συναρτήσεις για το bonus της άσκησης 3, με την set_remove_node να είναι και για το bonus της 5
 
 // Προσθέτει τον κόμβο node
+
 void set_insert_node(Set set, SetNode node) {
-	// Το πού θα γίνει η προσθήκη εξαρτάται από τη διάταξη της τιμής
+	// Το πού θα γίνει η προσθήκη εξαρτάται από τη διάταξη της τιμής σύμφωνα με την compare
 	SetNode iternode = set->root;
 	while (1) {
 		if (set->compare(node->value, iternode->value) < 0) {
@@ -393,6 +394,7 @@ void set_insert_node(Set set, SetNode node) {
 }
 
 // Αφαιρεί τον κόμβο node
+
 void set_remove_node(Set set, SetNode node) {
 	if (node == set->root) {
 		if (node->right == NULL) {
@@ -513,7 +515,8 @@ void set_remove_node(Set set, SetNode node) {
 }
 
 // Αφαιρεί τον την τιμή value, που βρίσκεται πιθανώς σε λάθος σημείο του δέντρου
-void set_remove_wrongvalue(Set set, Pointer value) {
+
+void set_remove_wrong_value(Set set, Pointer value) {
 	// Ψάχνουμε όλους τους κόμβους
 	for (SetNode node = set_first(set) ; node != SET_EOF ; node  = set_next(set, node)) {
 		// Όταν βρούμε τον κόμβο που ψάχνουμε τον αφαιρούμε

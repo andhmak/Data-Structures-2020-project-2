@@ -100,14 +100,12 @@ static SetNode node_insert(Set set, SetNode node, CompareFunc compare, Pointer v
 				newnode->prev = parent;
 				parent->next->prev = newnode;
 				parent->next = newnode;
-//				blist_insert(set->blist, blist_next(set->blist, parent->bnode), newnode);
 			}
 			else {
 				newnode->next = parent;
 				newnode->prev = parent->prev;
 				parent->prev->next = newnode;
 				parent->prev = newnode;
-//				blist_insert(set->blist, parent->bnode, newnode);
 			}
 		}
 		else {
@@ -162,7 +160,6 @@ static SetNode node_remove(Set set, SetNode node, CompareFunc compare, Pointer v
 			SetNode right = node->right;	// αποθήκευση πριν το free!
             node->next->prev = node->prev;
             node->prev->next = node->next;
-//			blist_remove(set->blist, node->bnode);
 			free(node);
 			return right;
 
@@ -171,7 +168,6 @@ static SetNode node_remove(Set set, SetNode node, CompareFunc compare, Pointer v
 			SetNode left = node->left;		// αποθήκευση πριν το free!
             node->next->prev = node->prev;
             node->prev->next = node->next;
-//			blist_remove(set->blist, node->bnode);
 			free(node);
 			return left;
 
@@ -198,8 +194,6 @@ static SetNode node_remove(Set set, SetNode node, CompareFunc compare, Pointer v
 			}
             node->next->prev = node->prev;
             node->prev->next = node->next;
-
-//			blist_remove(set->blist, node->bnode);
 
 			free(node);
 			return min_right;
@@ -394,7 +388,6 @@ void set_insert_node(Set set, SetNode node) {
 				node->prev = iternode->prev;
 				iternode->prev->next = node;
 				iternode->prev = node;
-//				blist_insert(set->blist, iternode->bnode, node);
 				return;
 			}
 		}
@@ -409,7 +402,6 @@ void set_insert_node(Set set, SetNode node) {
 				node->prev = iternode;
 				iternode->next->prev = node;
 				iternode->next = node;
-//				blist_insert(set->blist, blist_next(set->blist, iternode->bnode), node);
 				return;
 			}
 		}
@@ -425,7 +417,6 @@ void set_remove_node(Set set, SetNode node) {
 			}
             node->next->prev = node->prev;
             node->prev->next = node->next;
-//			blist_remove(set->blist, node->bnode);
 			if (set->destroy_value != NULL) {
 				set->destroy_value(node->value);
 			}
@@ -438,7 +429,6 @@ void set_remove_node(Set set, SetNode node) {
 			}
             node->next->prev = node->prev;
             node->prev->next = node->next;
-//			blist_remove(set->blist, node->bnode);
 			if (set->destroy_value != NULL) {
 				set->destroy_value(node->value);
 			}
@@ -466,7 +456,6 @@ void set_remove_node(Set set, SetNode node) {
 			min_right->parent = NULL;
             node->next->prev = node->prev;
             node->prev->next = node->next;
-//			blist_remove(set->blist, node->bnode);
 			if (set->destroy_value != NULL) {
 				set->destroy_value(node->value);
 			}
@@ -486,7 +475,6 @@ void set_remove_node(Set set, SetNode node) {
 			}
             node->next->prev = node->prev;
             node->prev->next = node->next;
-//			blist_remove(set->blist, node->bnode);
 			if (set->destroy_value != NULL) {
 				set->destroy_value(node->value);
 			}
@@ -504,7 +492,6 @@ void set_remove_node(Set set, SetNode node) {
 			}
             node->next->prev = node->prev;
             node->prev->next = node->next;
-//			blist_remove(set->blist, node->bnode);
 			if (set->destroy_value != NULL) {
 				set->destroy_value(node->value);
 			}
@@ -537,7 +524,6 @@ void set_remove_node(Set set, SetNode node) {
 			min_right->parent = node->parent;
             node->next->prev = node->prev;
             node->prev->next = node->next;
-//			blist_remove(set->blist, node->bnode);
 			if (set->destroy_value != NULL) {
 				set->destroy_value(node->value);
 			}
@@ -547,8 +533,11 @@ void set_remove_node(Set set, SetNode node) {
 	set->size--;
 }
 
+// Αφαιρεί τον την τιμή value, που βρίσκεται πιθανώς σε λάθος σημείο του δέντρου
 void set_remove_wrongvalue(Set set, Pointer value) {
+	// Ψάχνουμε όλους τους κόμβους
 	for (SetNode node = set_first(set) ; node != SET_EOF ; node  = set_next(set, node)) {
+		// Όταν βρούμε τον κόμβο που ψάχνουμε τον αφαιρούμε
 		if (!set->compare(set_node_value(set, node), value)) {
 			set_remove_node(set, node);
 			break;

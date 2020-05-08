@@ -23,5 +23,7 @@ UsingADTSet_ADTPriorityQueue_test_OBJS    = ADTPriorityQueue_test.o $(MODULES)/U
 #
 UsingBinarySearchTree_ADTSet_test_OBJS  = ADTSet_test.o $(MODULES)/UsingBinarySearchTree/ADTSet.o $(MODULES)/UsingDoublyLL/ADTBList.o
 
+UsingBinarySearchTreeAlt_ADTSet_test_OBJS  = ADTSet_test.o $(MODULES)/UsingBinarySearchTree/ADTSetAlternative.o
+
 # Ο βασικός κορμός του Makefile
 include ../common.mk

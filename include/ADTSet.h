@@ -86,10 +86,18 @@ Pointer set_node_value(Set set, SetNode node);
 
 SetNode set_find_node(Set set, Pointer value);
 
-// extra
+// Συναρτήσεις για τις ασκήσεις 3 και 5
+
+// Προσθέτει τον κόμβο node (δεν χρησιμοποιείται κάπου στην εργασία)
 
 void set_insert_node(Set set, SetNode node);
 
+// Αφαιρεί τον κόμβο node, απελευθερώνοντας την μνήμη και
+// της τιμής (αν destroy_value != NULL) και του κόμβου
+
 void set_remove_node(Set set, SetNode node);
 
-void set_remove_wrongvalue(Set set, Pointer value);
+// Αφαιρεί την τιμή value, που μπορεί να είναι λάθος τοποθετημένη στο Set,
+// απελευθερώνοντας την μνήμη και της τιμής (αν destroy_value != NULL) και του κόμβου
+
+void set_remove_wrong_value(Set set, Pointer value);
