@@ -93,28 +93,36 @@ static SetNode node_insert(Set set, SetNode node, CompareFunc compare, Pointer v
 	// Αν το υποδέντρο είναι κενό, δημιουργούμε νέο κόμβο ο οποίος γίνεται ρίζα του υποδέντρου
 	if (node == NULL) {
 		*inserted = true;			// κάναμε προσθήκη
-		SetNode newnode = node_create(value);
+		SetNode newnode = node_create(value);	// δημιουργούμε τον κόμβο
+		// αν υπάρχει πατέρας (δεν προσθέτουμε την ρίζα)
 		if (parent != NULL) {
+			// αν έχουμε "κατέβει" δεξιά
 			if (direction) {
+				// συνδέουμε τους γείτονες 
 				newnode->next = parent->next;
 				newnode->prev = parent;
 				parent->next->prev = newnode;
 				parent->next = newnode;
 			}
+			// αν έχουμε "κατέβει" αριστερά
 			else {
+				// συνδέουμε τους γείτονες 
 				newnode->next = parent;
 				newnode->prev = parent->prev;
 				parent->prev->next = newnode;
 				parent->prev = newnode;
 			}
 		}
+		// αν προσθέτουμε την ρίζα
 		else {
             set->dummy_first->next = newnode;
             set->dummy_last->prev = newnode;
             newnode->prev = set->dummy_first;
             newnode->next = set->dummy_last;
 		}
+		// περνάμε τον πατέρα
 		newnode->parent = parent;
+		// προσθέτουμε τον κόμβο
 		return newnode;
 	}
 
@@ -158,7 +166,7 @@ static SetNode node_remove(Set set, SetNode node, CompareFunc compare, Pointer v
 		if (node->left == NULL) {
 			// Δεν υπάρχει αριστερό υποδέντρο, οπότε διαγράφεται απλά ο κόμβος και νέα ρίζα μπαίνει το δεξί παιδί
 			SetNode right = node->right;	// αποθήκευση πριν το free!
-            node->next->prev = node->prev;
+            node->next->prev = node->prev;	// Σύνδεση γειτονικών κόμβων
             node->prev->next = node->next;
 			free(node);
 			return right;
@@ -166,16 +174,19 @@ static SetNode node_remove(Set set, SetNode node, CompareFunc compare, Pointer v
 		} else if (node->right == NULL) {
 			// Δεν υπάρχει δεξί υποδέντρο, οπότε διαγράφεται απλά ο κόμβος και νέα ρίζα μπαίνει το αριστερό παιδί
 			SetNode left = node->left;		// αποθήκευση πριν το free!
-            node->next->prev = node->prev;
+            node->next->prev = node->prev;	// Σύνδεση γειτονικών κόμβων
             node->prev->next = node->next;
 			free(node);
 			return left;
 
 		} else {
-			// Υπάρχουν και τα δύο παιδιά. Αντικαθιστούμε την τιμή του node με την μικρότερη του δεξιού υποδέντρου, η οποία
-			// αφαιρείται. Η συνάρτηση node_remove_min κάνει ακριβώς αυτή τη δουλειά.
+			// Υπάρχουν και τα δύο παιδιά. Αντικαθιστούμε την τιμή του node με την μικρότερη του δεξιού υποδέντρου 
+			// (δηλαδή την επόμενη στην λίστα), η οποία αφαιρείται.
 
 			SetNode min_right = node->next;
+
+			// Σύνδεση του min_right στη θέση του node και επιδιόρθωση του
+			// μέρους του δέντρου από όπου αφαιρείται ο min_right
 			if (min_right != node->right){
 				min_right->parent->left = min_right->right;
 				if (min_right->right != NULL) {
@@ -187,7 +198,6 @@ static SetNode node_remove(Set set, SetNode node, CompareFunc compare, Pointer v
 				}
 			}
 
-			// Σύνδεση του min_right στη θέση του node
 			min_right->left = node->left;
 			if (min_right->left != NULL) {
 				min_right->left->parent = min_right;

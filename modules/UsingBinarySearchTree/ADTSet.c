@@ -24,7 +24,7 @@ struct set {
 // Ενώ το struct set_node είναι κόμβος ενός Δυαδικού Δέντρου Αναζήτησης
 
 struct set_node {
-	BListNode bnode;
+	BListNode bnode;			// Αντίστοιχος κόμβος στην λίστα
 	SetNode left, right;		// Παιδιά
 	SetNode parent;				// Πατέρας
 	Pointer value;
@@ -94,22 +94,34 @@ static SetNode node_insert(Set set, SetNode node, CompareFunc compare, Pointer v
 	// Αν το υποδέντρο είναι κενό, δημιουργούμε νέο κόμβο ο οποίος γίνεται ρίζα του υποδέντρου
 	if (node == NULL) {
 		*inserted = true;			// κάναμε προσθήκη
-		SetNode newnode = node_create(value);
+		SetNode newnode = node_create(value);	// δημιουργούμε τον κόμβο
+		// αν υπάρχει πατέρας (δεν προσθέτουμε την ρίζα)
 		if (parent != NULL) {
+			// αν έχουμε "κατέβει" δεξιά
 			if (direction) {
+				// βάζουμε τον κόμβο στην λιστα
 				blist_insert(set->blist, blist_next(set->blist, parent->bnode), newnode);
+				// περνάμε στον κόμβο την θέση του στην λίστα
 				newnode->bnode = blist_next(set->blist, parent->bnode);
 			}
+			// αν έχουμε "κατέβει" αριστερά
 			else {
+				// βάζουμε τον κόμβο στην λιστα
 				blist_insert(set->blist, parent->bnode, newnode);
+				// περνάμε στον κόμβο την θέση του στην λίστα
 				newnode->bnode = blist_previous(set->blist, parent->bnode);
 			}
 		}
+		// αν προσθέτουμε την ρίζα
 		else {
+			// βάζουμε τον πρώυο κόμβο στην λιστα
 			blist_insert(set->blist, BLIST_EOF, newnode);
+			// περνάμε στον κόμβο την θέση του στην λίστα
 			newnode->bnode = blist_first(set->blist);
 		}
+		// περνάμε τον πατέρα
 		newnode->parent = parent;
+		// προσθέτουμε τον κόμβο
 		return newnode;
 	}
 
@@ -124,11 +136,11 @@ static SetNode node_insert(Set set, SetNode node, CompareFunc compare, Pointer v
 		node->value = value;
 
 	} else if (compare_res < 0) {
-		// value < node->value, συνεχίζουμε αριστερά.
+		// value < node->value, συνεχίζουμε αριστερά (0), περνόντας το node σαν πατέρα
 		node->left = node_insert(set, node->left, compare, value, inserted, old_value, node, 0);
 
 	} else {
-		// value > node->value, συνεχίζουμε δεξιά
+		// value > node->value, συνεχίζουμε δεξιά (1), περνόντας το node σαν πατέρα
 		node->right = node_insert(set, node->right, compare, value, inserted, old_value, node, 1);
 	}
 
@@ -153,22 +165,25 @@ static SetNode node_remove(Set set, SetNode node, CompareFunc compare, Pointer v
 		if (node->left == NULL) {
 			// Δεν υπάρχει αριστερό υποδέντρο, οπότε διαγράφεται απλά ο κόμβος και νέα ρίζα μπαίνει το δεξί παιδί
 			SetNode right = node->right;	// αποθήκευση πριν το free!
-			blist_remove(set->blist, node->bnode);
+			blist_remove(set->blist, node->bnode);	// αφαίρεση από την λιστα
 			free(node);
 			return right;
 
 		} else if (node->right == NULL) {
 			// Δεν υπάρχει δεξί υποδέντρο, οπότε διαγράφεται απλά ο κόμβος και νέα ρίζα μπαίνει το αριστερό παιδί
 			SetNode left = node->left;		// αποθήκευση πριν το free!
-			blist_remove(set->blist, node->bnode);
+			blist_remove(set->blist, node->bnode);	// αφαίρεση από την λιστα
 			free(node);
 			return left;
 
 		} else {
-			// Υπάρχουν και τα δύο παιδιά. Αντικαθιστούμε την τιμή του node με την μικρότερη του δεξιού υποδέντρου, η οποία
-			// αφαιρείται. Η συνάρτηση node_remove_min κάνει ακριβώς αυτή τη δουλειά.
+			// Υπάρχουν και τα δύο παιδιά. Αντικαθιστούμε την τιμή του node με την μικρότερη του δεξιού υποδέντρου 
+			// (δηλαδή την επόμενη στην λίστα), η οποία αφαιρείται.
 
 			SetNode min_right = blist_node_value(set->blist, blist_next(set->blist, node->bnode));
+
+			// Σύνδεση του min_right στη θέση του node και επιδιόρθωση του
+			// μέρους του δέντρου από όπου αφαιρείται ο min_right
 			if (min_right != node->right){
 				min_right->parent->left = min_right->right;
 				if (min_right->right != NULL) {
@@ -180,13 +195,12 @@ static SetNode node_remove(Set set, SetNode node, CompareFunc compare, Pointer v
 				}
 			}
 
-			// Σύνδεση του min_right στη θέση του node
 			min_right->left = node->left;
 			if (min_right->left != NULL) {
 				min_right->left->parent = min_right;
 			}
 
-			blist_remove(set->blist, node->bnode);
+			blist_remove(set->blist, node->bnode);	// αφαίρεση από την λιστα
 
 			free(node);
 			return min_right;
