@@ -30,40 +30,43 @@ struct priority_queue_node {
     Pointer value;
 };
 
+// Η συνάρτηση σύγκρισης που περνάμε στο set πρέπει να είναι οπωσδήποτε τύπου CompareFunc,
+// αλλά αφού θα περάσουμε κόμβους και όχι τιμές, η συνάρτηση σύγκρισης πρέπει να είναι
+// διαφορετική από την compare που θα περάσει στην pqueue ο χρήστης για την σύγκριση των τιμών.
+// Επομένως φτιάχνουμε την συνάρτηση compare_nodes που θα είναι ορατή μόνο μέσα στο module,
+// η οποία όμως χρειάζεται τρία ορίσματα, τους δύο κόμβους της pqueue (τιμές του set), και την
+// συνάρτηση σύγκρισης για τις τιμές των κόμβων. Αφού μια CompareFunc δέχεται μόνο δύο ορίσματα,
+// και για να μην γίνει σπατάλη μνήμης περνόντας τον δείκτη προς την συνάρτηση σε κάθε κόμβο,
+// δημιουργούμε την εξωτερική μεταβλητή temp_destroy, ορατή μόνο μέσα στο module, όπου θα
+// περνάμε την compare για κάθε pqueue πριν γίνει χρήση της compare_nodes, η οποία θα την χρησιμοποιεί.
+// Ομοίως και για την destroy_node.
+
 static CompareFunc temp_compare;
 static DestroyFunc temp_destroy;
 
-int compare_nodes(Pointer a, Pointer b) {
+static int compare_nodes(Pointer a, Pointer b) {
     PriorityQueueNode nodea = a, nodeb = b;
     int result = temp_compare(nodea->value, nodeb->value);
+    // Γίνεται διάταξη σύμφωνα με την τιμή
     if (result != 0) {
         return result;
     }
+    // Αλλά αν αυτή είναι ισοδύμανη τότε αντικαθίσταται
+    // μόνο αν περνάμε ακριβώς τον ίδιο κόμβο
     else {
         return nodea != nodeb;
     }
 }
 
-void destroy_node(Pointer node) {
+static void destroy_node(Pointer node) {
     PriorityQueueNode pnode = (PriorityQueueNode) node;
+    // Απελευθερνουμε την τιμή
     if (temp_destroy != NULL) {
         temp_destroy(pnode->value);
     }
+    // Απελευθερώνουμε τον κόμβο
     free(pnode);
 }
-
-//CompareFunc compare_nodes(CompareFunc compare) {
-//    int newcompare(Pointer a, Pointer b) {
-//        int result = compare((PriorityQueueNode) a)->value, (PriorityQueueNode) b)->value);
-//        if (result) {
-//            return result;
-//        }
-//        else {
-//            a - b;
-//        }
-//    }
-//    return newcompare;
-//}
 
 // Δημιουργεί και επιστρέφει μια νέα ουρά προτεραιότητας, της οποίας τα στοιχεία συγκρίνονται με βάση τη συνάρτηση compare.
 // Αν destroy_value != NULL, τότε καλείται destroy_value(value) κάθε φορά που αφαιρείται ένα στοιχείο.
@@ -173,10 +176,16 @@ void pqueue_remove_node(PriorityQueue pqueue, PriorityQueueNode node) {
 // - η κλήση οποιασδήποτε άλλης συνάρτησης pqueue_*
 
 void pqueue_update_order(PriorityQueue pqueue, PriorityQueueNode node) {
+    // Ενημέρωση temp_compare και temp_destroy για την συγκεκριμένη pqueue
     temp_compare = pqueue->compare;
     temp_destroy = pqueue->destroy;
+    // Περνάμε στο set NULL για destroy_value για να μην καταστραφεί ο κόμβος
     DestroyFunc old_destroy = set_set_destroy_value(pqueue->set, NULL);
+    // Αφαιρούμε από το set τον κόμβο, που τώρα θα έχει λάθος περιεχόμενο και
+    // χρειάζεται διαφορετικό αλγόριθμο από τον συνηθισμένο
     set_remove_wrongvalue(pqueue->set, node);
+    // Ξαναπροσθέτουμε τον κόμβο
     set_insert(pqueue->set, node);
+    // Επαναφέρουμε την destroy_value
     set_set_destroy_value(pqueue->set, old_destroy);
 }
