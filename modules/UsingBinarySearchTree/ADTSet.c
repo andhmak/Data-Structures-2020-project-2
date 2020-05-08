@@ -1,8 +1,8 @@
-///////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 //
-// Υλοποίηση του ADT Set μέσω Binary Search Tree (BST)
+// Υλοποίηση του ADT Set μέσω Binary Search Tree (BST) και DoublyLinkedList
 //
-///////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 
 #include <stdlib.h>
 #include <assert.h>
@@ -11,10 +11,11 @@
 #include "ADTSet.h"
 
 
-// Υλοποιούμε τον ADT Set μέσω BST, οπότε το struct set είναι ένα Δυαδικό Δέντρο Αναζήτησης.
+// Υλοποιούμε τον ADT Set μέσω BST και DoublyLL, οπότε το struct set είναι
+// ένα Δυαδικό Δέντρο Αναζήτησης που περιέχει μια αμφίδρομη λίστα.
 struct set {
 	SetNode root;				// η ρίζα, NULL αν είναι κενό δέντρο
-	BList blist;
+	BList blist;				// η αμφίδρομη λίστα
 	int size;					// μέγεθος, ώστε η set_size να είναι Ο(1)
 	CompareFunc compare;		// η διάταξη
 	DestroyFunc destroy_value;	// Συνάρτηση που καταστρέφει ένα στοιχείο του set
@@ -25,7 +26,7 @@ struct set {
 struct set_node {
 	BListNode bnode;
 	SetNode left, right;		// Παιδιά
-	SetNode parent;
+	SetNode parent;				// Πατέρας
 	Pointer value;
 };
 
@@ -45,6 +46,7 @@ static SetNode node_create(Pointer value) {
 	node->left = NULL;
 	node->right = NULL;
 	node->bnode = NULL;
+	node->parent = NULL;
 	node->value = value;
 	return node;
 }
@@ -358,6 +360,7 @@ bool set_is_proper(Set node) {
 
 // συναρτήσεις για το bonus της άσκησης 3, με την set_remove_node να είναι και για το bonus της 5
 
+// Προσθέτει τον κόμβο node
 void set_insert_node(Set set, SetNode node) {
 	// Το πού θα γίνει η προσθήκη εξαρτάται από τη διάταξη της τιμής
 	SetNode iternode = set->root;
@@ -389,6 +392,7 @@ void set_insert_node(Set set, SetNode node) {
 	}
 }
 
+// Αφαιρεί τον κόμβο node
 void set_remove_node(Set set, SetNode node) {
 	if (node == set->root) {
 		if (node->right == NULL) {
@@ -508,8 +512,11 @@ void set_remove_node(Set set, SetNode node) {
 	set->size--;
 }
 
+// Αφαιρεί τον την τιμή value, που βρίσκεται πιθανώς σε λάθος σημείο του δέντρου
 void set_remove_wrongvalue(Set set, Pointer value) {
+	// Ψάχνουμε όλους τους κόμβους
 	for (SetNode node = set_first(set) ; node != SET_EOF ; node  = set_next(set, node)) {
+		// Όταν βρούμε τον κόμβο που ψάχνουμε τον αφαιρούμε
 		if (!set->compare(set_node_value(set, node), value)) {
 			set_remove_node(set, node);
 			break;

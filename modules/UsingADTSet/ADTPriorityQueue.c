@@ -26,6 +26,10 @@ struct priority_queue {
     DestroyFunc destroy;
 };
 
+// Στο set θα περνάμε κόμβους και όχι τιμές, έτσι ώστε να να μπορεί
+// η δομή να αποθηκεύει και ισοδύναμα στοιχεία
+// Οι τιμές του set είναι οι κόμβοι της pqueue, και περιέχουν τις τιμές της pqueue
+
 struct priority_queue_node {
     Pointer value;
 };

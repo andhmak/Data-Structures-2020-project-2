@@ -1,8 +1,8 @@
-///////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// Υλοποίηση του ADT Set μέσω Binary Search Tree (BST)
+// Υλοποίηση του ADT Set μέσω Binary Search Tree (BST) και με δείκτες σε γειτονικούς κατά σειρά κόμβους
 //
-///////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <stdlib.h>
 #include <assert.h>
@@ -23,8 +23,8 @@ struct set {
 
 struct set_node {
 	SetNode left, right;		// Παιδιά
-	SetNode prev, next;
-	SetNode parent;
+	SetNode prev, next;			// Γειτονικοί κατά σειρά κόμβοι
+	SetNode parent;				// Πατέρας
 	Pointer value;
 };
 
@@ -45,6 +45,7 @@ static SetNode node_create(Pointer value) {
 	node->right = NULL;
 	node->prev = NULL;
     node->next = NULL;
+	node->parent = NULL;
 	node->value = value;
 	return node;
 }
