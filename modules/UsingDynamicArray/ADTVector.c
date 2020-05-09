@@ -127,6 +127,9 @@ DestroyFunc vector_set_destroy_value(Vector vec, DestroyFunc destroy_value) {
 	return old;
 }
 
+// Τα βήματα σε αυτήν την συνάρτηση ενημερώνονται απλά για να φαίνεται ότι έχει πολυπλοκότητα Θ(n) αν υπάρχει
+// destroy_value, αλλά πρακτικά δεν μπορούν να χρησιμοποιηθούν γιατί απελευθερώνεται η μνήμη του Vector
+
 void vector_destroy(Vector vec) {
 	// Αν υπάρχει συνάρτηση destroy_value, την καλούμε για όλα τα στοιχεία
 	if (vec->destroy_value != NULL) {
