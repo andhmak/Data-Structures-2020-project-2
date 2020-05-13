@@ -24,11 +24,11 @@ vector_insert_last:<br>
 Η πραγματική πολυπλοκότητα είναι Θ(1) όταν υπάρχει κενός χώρος στο vector, και Θ(n) αλλιώς. Για αυτόν τον λόγο εμφανίζεται μια οριζόντια ευθεία με ασυνέχειες, οι οποίες αποτελούν σημεία της παράστασης της συνάρτησης f(n) = n + 1, που είναι Θ(n).<br>
 ![Real steps](images/real.png)<br>
 Το ότι μόνο σε πολύ λίγες περιπτώσεις η πολυπλοκότητα είναι Ο(n) (επειδή το πλήθος του κενού χώρου που δεσμεύεται είναι πολλαπλάσιος του μεγέθους) φαίνεται μέσω της amortized πολυπλοκότητας (μέσου όρου), που είναι Ο(1) (τα βήματα είναι σταθερά 1 ή 2, και δεν αυξάνονται συναρτήσει του μεγέθους).<br>
-![Amortized steps](https://github.com/chatziko-k08/2020-project-2-andhmak/tree/master/images/amort.png)<br>
+![Amortized steps](images/amort.png)<br>
 list_insert_next:<br>
 Η συνάρτηση είναι πάντα Θ(1), άρα τα βήματα είναι σταθερά ένα (και real και amortized).<br>
-![Real steps](https://github.com/chatziko-k08/2020-project-2-andhmak/tree/master/images/real_list.png)<br>
-![Amortized steps](https://github.com/chatziko-k08/2020-project-2-andhmak/tree/master/images/amortized_list.png)<br>
+![Real steps](images/real_list.png)<br>
+![Amortized steps](images/amortized_list.png)<br>
 Άσκηση 2:<br>
 Η αμφίδρομη λίστα χρησιμοποιεί δύο dummy κόμβους, έναν πριν τον πρώτο πραγματικό και έναν πριν τον τελευταίο πραγματικό.<br>
 Άσκηση 3:<br>
