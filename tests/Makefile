@@ -25,5 +25,7 @@ UsingBinarySearchTree_ADTSet_test_OBJS  = ADTSet_test.o $(MODULES)/UsingBinarySe
 
 UsingBinarySearchTreeAlt_ADTSet_test_OBJS  = ADTSet_test.o $(MODULES)/UsingBinarySearchTree/ADTSetAlternative.o
 
+UsingAVL_ADTSet_test_OBJS  = ADTSet_test.o $(MODULES)/UsingAVL/ADTSet.o $(MODULES)/UsingLinkedList/ADTList.o
+
 # Ο βασικός κορμός του Makefile
 include ../common.mk
